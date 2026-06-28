@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Rising Stars — Torch in the Dark</title>
@@ -28482,6 +28483,51 @@ function resolveSpell(ref, library) {
     _ref: ref
   };
 }
+// ── Supabase cloud sync (Stage 1: blob model) ──────────────────────────────
+const SUPABASE_URL = 'https://nzvbayzjonyesirqggzh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HSosInRTRTF0HwwB2zRxtA_QwhzHqep';
+const CLOUD_ROW_ID = 'main';
+let _sb = null;
+function sbClient(){
+  if(_sb) return _sb;
+  try{
+    if(window.supabase && window.supabase.createClient){
+      _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  }catch(e){ console.warn('Supabase client init failed:', e); }
+  return _sb;
+}
+// Fetch the campaign blob from the cloud. Returns the data object, null if empty, or
+// throws/returns undefined on a connection problem (caller treats that as "stay local").
+async function cloudLoad(){
+  const c = sbClient(); if(!c) return undefined;
+  const { data, error } = await c.from('campaign').select('data,updated_at').eq('id', CLOUD_ROW_ID).maybeSingle();
+  if(error){ console.warn('cloudLoad error:', error.message); return undefined; }
+  if(!data) return null;
+  const blob = data.data;
+  // Treat an empty object as "cloud not yet seeded".
+  if(!blob || (typeof blob==='object' && Object.keys(blob).length===0)) return null;
+  return blob;
+}
+let _cloudReady = false;
+let _cloudSaveTimer = null;
+let _lastCloudJson = null;
+// Push the campaign blob to the cloud, debounced so rapid edits don't spam the network.
+function cloudSave(d){
+  const c = sbClient(); if(!c) return;
+  try{
+    const json = JSON.stringify(d);
+    if(json === _lastCloudJson) return; // nothing changed
+    _lastCloudJson = json;
+  }catch(e){ return; }
+  if(_cloudSaveTimer) clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer = setTimeout(async () => {
+    try{
+      const { error } = await c.from('campaign').update({ data: d, updated_at: new Date().toISOString() }).eq('id', CLOUD_ROW_ID);
+      if(error) console.warn('cloudSave error:', error.message);
+    }catch(e){ console.warn('cloudSave threw:', e); }
+  }, 1200);
+}
 const loadData = () => {
   try {
     const r = localStorage.getItem(STORE_KEY);
@@ -51699,22 +51745,48 @@ function App() {
   const [inGameDate, setInGameDate] = useState(null);
   const [modal, setModal] = useState(null);
   useEffect(() => {
-    const d = loadData();
-    if (d) {
+    const applyBlob = (d) => {
       const mig = migrateSpellLibrary(d.characters || [], d.spellLibrary);
       setCharacters(mig.characters);
       setSpellLibrary(mig.spellLibrary);
       setDark(!!d.dark);
       setInGameDate(normGameDate(d.inGameDate) || normGameDate(d.inGameYear));
-    }
+    };
+    // 1) Instant load from local cache so the app is never blank on startup.
+    const localD = loadData();
+    if (localD) applyBlob(localD);
+    // 2) Then reconcile with the cloud (source of truth once seeded).
+    (async () => {
+      let cloud;
+      try { cloud = await cloudLoad(); }
+      catch (e) { console.warn('cloud load failed, staying on local:', e); return; }
+      if (cloud === undefined) return; // connection problem — keep local, no harm
+      if (cloud === null) {
+        // Cloud row is empty. If we have local data, offer a one-time seed-up.
+        if (localD) {
+          const ok = window.confirm('Cloud storage is empty. Upload this device\u2019s current campaign to the cloud now? (Your local copy is kept either way.)');
+          if (ok) { try { cloudSave(localD); } catch(e){ console.warn(e); } }
+        }
+        return;
+      }
+      // Cloud has real data — it wins. Apply it and refresh the local cache.
+      applyBlob(cloud);
+      try { saveData(cloud); } catch(e){}
+      _cloudReady = true;
+    })();
   }, []);
   useEffect(() => {
-    saveData({
+    const blob = {
       characters,
       dark,
       inGameDate,
       spellLibrary
-    });
+    };
+    saveData(blob);
+    // Push to cloud too (debounced). Guard against the initial empty-state render
+    // writing a blank campaign over real cloud data before load finishes.
+    const hasContent = (characters && characters.length) || (spellLibrary && spellLibrary.length);
+    if (hasContent) cloudSave(blob);
   }, [characters, dark, inGameDate, spellLibrary]);
   useEffect(() => {
     document.body.classList.toggle('dark', dark);
