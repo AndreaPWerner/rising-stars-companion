@@ -28510,6 +28510,7 @@ async function cloudLoad(){
   return blob;
 }
 let _cloudReady = false;
+let _suppressNextCloudSave = false;
 let _cloudSaveTimer = null;
 let _lastCloudJson = null;
 // Push the campaign blob to the cloud, debounced so rapid edits don't spam the network.
@@ -28523,10 +28524,52 @@ function cloudSave(d){
   if(_cloudSaveTimer) clearTimeout(_cloudSaveTimer);
   _cloudSaveTimer = setTimeout(async () => {
     try{
-      const { error } = await c.from('campaign').update({ data: d, updated_at: new Date().toISOString() }).eq('id', CLOUD_ROW_ID);
+      const { error } = await c.from('campaign').update({ data: d, updated_at: new Date().toISOString(), client_id: CLIENT_ID }).eq('id', CLOUD_ROW_ID);
       if(error) console.warn('cloudSave error:', error.message);
     }catch(e){ console.warn('cloudSave threw:', e); }
   }, 1200);
+}
+// ── Stage 2: realtime live sync ────────────────────────────────────────────
+// A unique id for THIS browser tab, so we can ignore the echo of our own writes.
+const CLIENT_ID = (Math.random().toString(36).slice(2) + Date.now().toString(36));
+let _lastSentClientId = null;
+// The React app registers a handler here so incoming cloud changes can update the UI.
+let _onRemoteBlob = null;
+function registerRemoteHandler(fn){ _onRemoteBlob = fn; }
+let _rtChannel = null;
+let _rtRetryTimer = null;
+let _rtRetries = 0;
+function startRealtime(){
+  const c = sbClient(); if(!c) return;
+  if(_rtChannel) return; // already subscribed
+  try{
+    _rtChannel = c.channel('campaign-sync')
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'campaign', filter: 'id=eq.' + CLOUD_ROW_ID },
+        (payload) => {
+          try{
+            const row = payload && payload.new;
+            if(!row) return;
+            // Ignore the echo of our own most recent write.
+            if(row.client_id && row.client_id === CLIENT_ID) return;
+            const blob = row.data;
+            if(!blob || (typeof blob==='object' && Object.keys(blob).length===0)) return;
+            if(_onRemoteBlob) _onRemoteBlob(blob);
+          }catch(e){ console.warn('realtime handler error:', e); }
+        })
+      .subscribe((status) => {
+        if(status === 'SUBSCRIBED'){ _rtRetries = 0; }
+        else if(status === 'CHANNEL_ERROR' || status === 'CLOSED' || status === 'TIMED_OUT'){
+          // Self-heal: tear down and retry with backoff (capped).
+          try{ if(_rtChannel){ c.removeChannel(_rtChannel); } }catch(e){}
+          _rtChannel = null;
+          if(_rtRetryTimer) clearTimeout(_rtRetryTimer);
+          const delay = Math.min(30000, 2000 * Math.pow(1.5, Math.min(_rtRetries, 8)));
+          _rtRetries++;
+          _rtRetryTimer = setTimeout(startRealtime, delay);
+        }
+      });
+  }catch(e){ console.warn('startRealtime failed:', e); }
 }
 const loadData = () => {
   try {
@@ -51774,6 +51817,15 @@ function App() {
       try { saveData(cloud); } catch(e){}
       _cloudReady = true;
     })();
+    // Stage 2: when another device changes the campaign, apply it here live.
+    registerRemoteHandler((blob) => {
+      try {
+        _suppressNextCloudSave = true;   // applying a remote change must not echo back up
+        applyBlob(blob);
+        try { saveData(blob); } catch(e){}
+      } catch(e){ console.warn('apply remote blob failed:', e); }
+    });
+    startRealtime();
   }, []);
   useEffect(() => {
     const blob = {
@@ -51786,7 +51838,12 @@ function App() {
     // Push to cloud too (debounced). Guard against the initial empty-state render
     // writing a blank campaign over real cloud data before load finishes.
     const hasContent = (characters && characters.length) || (spellLibrary && spellLibrary.length);
-    if (hasContent) cloudSave(blob);
+    if (_suppressNextCloudSave) {
+      // This state change came FROM a remote update — don't echo it back to the cloud.
+      _suppressNextCloudSave = false;
+    } else if (hasContent) {
+      cloudSave(blob);
+    }
   }, [characters, dark, inGameDate, spellLibrary]);
   useEffect(() => {
     document.body.classList.toggle('dark', dark);
