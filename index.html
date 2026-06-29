@@ -29397,7 +29397,7 @@ function HpTracker({
     className: "hp-inp",
     type: "number",
     value: char.hpCurrent,
-    disabled: hpLocked,
+    disabled: hpLocked || !canEdit,
     style: hpLocked ? {
       opacity: .4,
       cursor: 'not-allowed'
@@ -29466,6 +29466,7 @@ function HpTracker({
     className: "hp-inp",
     type: "number",
     min: "0",
+    disabled: !canEdit,
     value: char.hpTemp || 0,
     onChange: e => onUpdate({
       hpTemp: parseInt(e.target.value) || 0
@@ -29476,6 +29477,7 @@ function HpTracker({
     className: "hp-inp",
     type: "number",
     min: "0",
+    disabled: !canEdit,
     value: tMax,
     onChange: e => onUpdate({
       hpTempMax: parseInt(e.target.value) || 0
@@ -30903,10 +30905,10 @@ function DeathSaves({
   }, "Fail"), React.createElement("button", {
     className: "ds-btn stabilize-gold",
     onClick: doStabilize
-  }, "Stabilize"), React.createElement("button", {
+  }, "Stabilize"), (canEdit && React.createElement("button", {
     className: "ds-btn heal",
     onClick: () => setHealOpen(true)
-  }, "Heal"), React.createElement("button", {
+  }, "Heal")), React.createElement("button", {
     className: "ds-btn pass",
     onClick: doPass
   }, "Pass"), React.createElement("button", {
@@ -30921,10 +30923,10 @@ function DeathSaves({
     }
   }, React.createElement("div", {
     className: "ds-note"
-  }, "Stable at 0 HP — heal to revive."), React.createElement("button", {
+  }, "Stable at 0 HP — heal to revive."), (canEdit && React.createElement("button", {
     className: "ds-btn heal",
     onClick: () => setHealOpen(true)
-  }, "✚ Heal")), dead && React.createElement("div", {
+  }, "✚ Heal"))), dead && React.createElement("div", {
     className: "ds-revival"
   }, ds.deathDate && React.createElement("div", {
     className: "ds-note"
@@ -33016,7 +33018,7 @@ function SlotTracker({
     }, (_, i) => React.createElement("span", {
       key: i,
       className: `slot-circle${i >= rem ? ' used' : ''}`,
-      onClick: () => useSlot(l, i >= rem ? -1 : 1),
+      onClick: canEdit ? (() => useSlot(l, i >= rem ? -1 : 1)) : undefined,
       title: i >= rem ? 'Recover slot' : 'Use slot'
     })));
   }), pact && React.createElement("div", {
@@ -39184,15 +39186,15 @@ function MagicCombatModule({
     className: "magic-header-btn",
     onClick: () => setHealOpen(true),
     title: "Heal yourself or a wounded ally with one of your spells or items"
-  }, "✚ Heal…"), repairAvail && React.createElement("button", {
+  }, "✚ Heal…"), repairAvail && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setRepairOpen(true),
     title: "Mend damaged gear — your own or a party member's"
-  }, "✦ Mend…"), raiseAllyAvail && React.createElement("button", {
+  }, "✦ Mend…")), raiseAllyAvail && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setRaiseOpen(true),
     title: "Bring back a fallen ally with your revival magic"
-  }, "✚ Raise Ally")), bookOpen && React.createElement("div", {
+  }, "✚ Raise Ally"))), bookOpen && React.createElement("div", {
     className: "magic-subbar"
   }, React.createElement("button", {
     className: "magic-header-btn",
@@ -39200,25 +39202,25 @@ function MagicCombatModule({
       ...defaultSpell(),
       sourceClass: (char.classes.find(c => c.spellcastingAbility !== '—') || {}).className || ''
     })
-  }, "+ Spell"), React.createElement("button", {
+  }, "+ Spell"), (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setShowLibrary(true),
     title: "Add spells from the shared library"
-  }, "📚 Library"), React.createElement("button", {
+  }, "📚 Library")), React.createElement("button", {
     className: `magic-header-btn${hasArcaneFocus(char) ? ' focus-on' : ''}`,
     style: {
       cursor: 'default'
     },
     title: hasArcaneFocus(char) ? 'Arcane Focus equipped' : 'No Arcane Focus equipped — flag an item as your Arcane Focus and equip it'
-  }, hasArcaneFocus(char) ? '✦' : '✧', " Arcane Focus"), subclassSpellGrants(char).length > 0 && React.createElement("button", {
+  }, hasArcaneFocus(char) ? '✦' : '✧', " Arcane Focus"), subclassSpellGrants(char).length > 0 && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setShowGranted(true),
     title: "Add domain / patron / subclass spells as always-prepared or known"
-  }, "✦ Subclass"), awakenedSpellbookActive(char) && React.createElement("button", {
+  }, "✦ Subclass")), awakenedSpellbookActive(char) && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setShowScribe(true),
     title: "Order of Scribes — damage types you can swap to at each spell level"
-  }, "✒ Scribe"), React.createElement("input", {
+  }, "✒ Scribe")), React.createElement("input", {
     className: "magic-search-mini",
     placeholder: "🔍",
     value: search,
@@ -39510,13 +39512,13 @@ function MagicCombatModule({
       className: "ar-slot-counter"
     }, React.createElement("button", {
       className: "ar-btn",
-      onClick: () => adjustAR(l, -1),
+      onClick: canEdit ? (() => adjustAR(l, -1)) : undefined,
       disabled: (arRec[l] || 0) === 0
     }, "−"), React.createElement("span", {
       className: "ar-count"
     }, arRec[l] || 0), React.createElement("button", {
       className: "ar-btn",
-      onClick: () => adjustAR(l, 1),
+      onClick: canEdit ? (() => adjustAR(l, 1)) : undefined,
       disabled: (arRec[l] || 0) >= used || arTotal >= arMax
     }, "+")), React.createElement("span", {
       style: {
@@ -40074,7 +40076,7 @@ function MagicCombatModule({
         width: 12,
         height: 12
       },
-      onClick: () => adjustPool(src, ci >= rem ? 1 : -1),
+      onClick: canEdit ? (() => adjustPool(src, ci >= rem ? 1 : -1)) : undefined,
       title: ci >= rem ? 'Restore a charge' : 'Spend a charge'
     }))), React.createElement("span", {
       style: {
