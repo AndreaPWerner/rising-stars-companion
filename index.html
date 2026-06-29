@@ -28492,6 +28492,17 @@ const CLOUD_ROW_ID = 'main';
 // Reads the email Cloudflare authenticated. Only works on the deployed, gated site;
 // fails quietly (returns null) when opened locally or if the endpoint is unavailable.
 let _identityEmail = null;
+// ── Ownership / edit permissions ─────────────────────────────────────────────
+const MAINTAINER_EMAIL = 'andrea.p.werner@gmail.com';
+function isMaintainer(email){ return !!email && email.toLowerCase() === MAINTAINER_EMAIL.toLowerCase(); }
+// Can `email` edit this character's layout/background?
+// Yes if maintainer, or if they own this character. Unowned => maintainer only.
+function canEditCharLayout(char, email){
+  if(isMaintainer(email)) return true;
+  const owner = (char && char.ownerEmail || '').toLowerCase().trim();
+  if(!owner) return false;            // unowned: only maintainer (handled above)
+  return !!email && email.toLowerCase().trim() === owner;
+}
 async function fetchIdentity(){
   try{
     const res = await fetch('/cdn-cgi/access/get-identity', { credentials: 'include' });
@@ -37785,7 +37796,8 @@ function MagicCombatModule({
   spellLibrary = [],
   onUpdateLibrary,
   inGameDate,
-  onAdvanceDate
+  onAdvanceDate,
+  canEditLayout = false
 }) {
   const [editingSpell, setEditingSpell] = useState(null);
   const [infoSpell, setInfoSpell] = useState(null);
@@ -38937,7 +38949,7 @@ function MagicCombatModule({
       } : r)
     });
   };
-  const saveLayout = () => onUpdate({
+  const saveLayout = () => { if(!canEditLayout) return; onUpdate({
     backgroundImageUrl: bgUrl,
     backgroundImagePosition: bgPos,
     spellbookTextureUrl: texUrl,
@@ -38951,7 +38963,7 @@ function MagicCombatModule({
     rightColY: rcy,
     rightColBottom: rcb,
     rightColWidth: rcw
-  });
+  }); };
   const posOpts = ['center center', 'center top', 'center bottom', 'left center', 'right center', 'top left', 'top right', 'bottom left', 'bottom right'];
   const lvlNames = ['—', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
   const OffRow = ({
@@ -39222,11 +39234,11 @@ function MagicCombatModule({
   }, "Tag"), allTags.map(t => React.createElement("option", {
     key: t,
     value: t
-  }, t))))), React.createElement("button", {
+  }, t))))), (canEditLayout ? React.createElement("button", {
     className: `magic-gear-btn${editBg ? ' panel-on' : ''}`,
     onClick: () => setEditBg(o => !o),
     title: "Edit images & layout"
-  }, "⚙"), editBg && React.createElement("div", {
+  }, "⚙") : null), editBg && React.createElement("div", {
     className: "magic-edit-panel"
   }, React.createElement("div", {
     className: "magic-edit-grid"
@@ -50418,7 +50430,8 @@ function CharacterPage({
   onUpdateChar,
   spellLibrary = [],
   onUpdateLibrary,
-  onAdvanceDate
+  onAdvanceDate,
+  myEmail
 }) {
   const [ribbonTab, setRibbonTab] = useState(null);
   const lv = totLevel(char.classes),
@@ -50613,7 +50626,8 @@ function CharacterPage({
     spellLibrary: spellLibrary,
     onUpdateLibrary: onUpdateLibrary,
     inGameDate: inGameDate,
-    onAdvanceDate: onAdvanceDate
+    onAdvanceDate: onAdvanceDate,
+    canEditLayout: canEditCharLayout(char, myEmail)
   }) : React.createElement("div", {
     style: {
       padding: '20px 18px'
@@ -50820,7 +50834,8 @@ function CharModal({
   initial,
   onSave,
   onDelete,
-  onClose
+  onClose,
+  myEmail
 }) {
   const [tab, setTab] = useState('identity');
   const [f, setF] = useState(() => {
@@ -51128,7 +51143,18 @@ function CharModal({
     onChange: e => set({
       playerName: e.target.value
     })
-  })), React.createElement("div", {
+  })), (isMaintainer(myEmail) ? React.createElement("div", {
+    className: "form-field"
+  }, React.createElement("label", {
+    className: "form-lbl"
+  }, "Owner email ", React.createElement("span", { style: { opacity: 0.55, fontWeight: 'normal' } }, "(maintainer only — who may edit this character's layout)")), React.createElement("input", {
+    className: "form-inp",
+    placeholder: "owner@email.com",
+    value: f.ownerEmail || '',
+    onChange: e => set({
+      ownerEmail: e.target.value
+    })
+  })) : null), React.createElement("div", {
     className: "form-field"
   }, React.createElement("label", {
     className: "form-lbl"
@@ -51964,6 +51990,7 @@ function App() {
     onSelect: setCurrentId,
     onAdd: () => setModal('add')
   }) : currentChar ? React.createElement(CharacterPage, {
+    myEmail: myEmail,
     char: currentChar,
     inGameDate: inGameDate,
     onUpdate: p => updateChar(currentId, p),
@@ -51978,7 +52005,8 @@ function App() {
     initial: modal === 'edit' ? currentChar : null,
     onSave: saveChar,
     onDelete: deleteChar,
-    onClose: () => setModal(null)
+    onClose: () => setModal(null),
+    myEmail: myEmail
   }));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
