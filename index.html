@@ -38052,6 +38052,7 @@ function MagicCombatModule({
     });
   };
   const castGrantedTo = (src, g, target) => {
+    if (!canEdit) return;   // using THIS character's item/feature charges — owner/maintainer only
     const cost = parseInt(g.entry.cost) || 0;
     const max = parseInt(src.poolMax) || 0;
     const patch = typeof _tphp !== 'undefined' && _tphp ? {
@@ -38583,6 +38584,7 @@ function MagicCombatModule({
     setAoeCast(null);
   };
   const applyMultiCast = (spell, payload) => {
+    if (!canEdit) return;   // casting/using THIS character's resources — owner/maintainer only
     const _miss = spell.hasM && (spell.materialItems || []).length ? missingSpellComponents(characters, spell) : [];
     if (_miss.length) {
       window.alert('Missing costly components: ' + _miss.map(fmtSpellComp).join('; '));
@@ -38691,6 +38693,7 @@ function MagicCombatModule({
     setMultiCast(null);
   };
   const applyModeCast = (spell, mode, targets, note, level, tempHpVal, dmgChoice, atkAbil) => {
+    if (!canEdit) return;   // casting/using THIS character's resources — owner/maintainer only
     if (!mode) {
       setModeCast(null);
       return;
