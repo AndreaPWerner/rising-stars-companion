@@ -38403,6 +38403,7 @@ function MagicCombatModule({
     };
   };
   const castSpellTo = (spell, target) => {
+    if (!canEdit) return;   // casting spends THIS character's resources — owner/maintainer only
     if (target === 'aoe') {
       setInfoSpell(null);
       setAoeCast(spell);
@@ -39714,7 +39715,7 @@ function MagicCombatModule({
         spell: s,
         char: char,
         spellLibrary: spellLibrary,
-        onCast: t => castSpellTo(s, t),
+        onCast: canEdit ? (t => castSpellTo(s, t)) : null,
         collapseSignal: collapseCardId === s.id ? collapseCardId : null,
         onCollapsed: () => setCollapseCardId(null),
         otherChars: otherChars,
@@ -39830,7 +39831,7 @@ function MagicCombatModule({
         spell: s,
         char: char,
         spellLibrary: spellLibrary,
-        onCast: t => castSpellTo(s, t),
+        onCast: canEdit ? (t => castSpellTo(s, t)) : null,
         collapseSignal: collapseCardId === s.id ? collapseCardId : null,
         onCollapsed: () => setCollapseCardId(null),
         otherChars: otherChars,
@@ -40280,7 +40281,7 @@ function MagicCombatModule({
     char: char,
     spellLibrary: spellLibrary,
     otherChars: otherChars,
-    onCast: t => castSpellTo(infoSpell, t),
+    onCast: canEdit ? (t => castSpellTo(infoSpell, t)) : null,
     onSend: () => openSend(infoSpell),
     onEdit: () => {
       const s = infoSpell;
