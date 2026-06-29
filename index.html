@@ -29362,7 +29362,8 @@ function hitDicePools(char) {
 }
 function HpTracker({
   char,
-  onUpdate
+  onUpdate,
+  canEdit = false
 }) {
   const hpMaxMod = getModBundle(char).hpMax;
   const exh = char.exhaustion || 0;
@@ -30673,7 +30674,8 @@ function DeathSaves({
   characters = [],
   onUpdateChar,
   inGameDate,
-  spellLibrary = []
+  spellLibrary = [],
+  canEdit = false
 }) {
   const ds = char.deathSaves || {
     passes: 0,
@@ -32965,7 +32967,8 @@ function CommsTab({
 }
 function SlotTracker({
   char,
-  onUpdate
+  onUpdate,
+  canEdit = false
 }) {
   const sm = calcAutoSlots(char.classes || []) || {};
   const su = char.spellSlotsUsed || {};
@@ -39772,7 +39775,8 @@ function MagicCombatModule({
     }
   }, "Spell Slots")), React.createElement(SlotTracker, {
     char: char,
-    onUpdate: onUpdate
+    onUpdate: onUpdate,
+    canEdit: canEdit
   }), React.createElement("div", {
     style: {
       marginTop: 7,
@@ -39866,14 +39870,16 @@ function MagicCombatModule({
     className: "combat-vitals"
   }, React.createElement(HpTracker, {
     char: char,
-    onUpdate: onUpdate
+    onUpdate: onUpdate,
+    canEdit: canEdit
   })), React.createElement(DeathSaves, {
     char: char,
     onUpdate: onUpdate,
     characters: characters,
     onUpdateChar: onUpdateChar,
     inGameDate: inGameDate,
-    spellLibrary: spellLibrary
+    spellLibrary: spellLibrary,
+    canEdit: canEdit
   }), React.createElement("div", {
     className: "combat-cols"
   }, React.createElement("div", {
