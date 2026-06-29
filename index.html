@@ -28488,7 +28488,6 @@ const SUPABASE_URL = 'https://nzvbayzjonyesirqggzh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HSosInRTRTF0HwwB2zRxtA_QwhzHqep';
 const CLOUD_ROW_ID = 'main';
 // Device-local preferences (NEVER synced to the cloud — personal to each browser).
-const PREF_DARK_KEY = 'risingStars_dark';
 // ── Stage A: identity (who is signed in, via the Cloudflare Access gate) ──────
 // Reads the email Cloudflare authenticated. Only works on the deployed, gated site;
 // fails quietly (returns null) when opened locally or if the endpoint is unavailable.
@@ -28506,8 +28505,25 @@ async function fetchIdentity(){
     return null;
   }
 }
-function loadDarkPref(){ try{ return localStorage.getItem(PREF_DARK_KEY) === '1'; }catch(e){ return false; } }
-function saveDarkPref(v){ try{ localStorage.setItem(PREF_DARK_KEY, v ? '1' : '0'); }catch(e){} }
+// Personal preferences: stored locally, keyed by WHO is signed in (from Stage A).
+// Never synced — each person's own view settings, following them across devices via email key.
+// Falls back to a device-wide key before identity is known (or when opened locally).
+const PREF_KEY_BASE = 'risingStars_prefs';
+function _prefKey(){ return PREF_KEY_BASE + (_identityEmail ? (':' + _identityEmail) : ':_device'); }
+function loadPrefs(){
+  try{
+    const raw = localStorage.getItem(_prefKey());
+    if(raw) return JSON.parse(raw);
+    const oldDark = localStorage.getItem('risingStars_dark');  // migrate old device-only dark
+    if(oldDark !== null) return { dark: oldDark === '1' };
+    return {};
+  }catch(e){ return {}; }
+}
+function savePrefs(obj){ try{ localStorage.setItem(_prefKey(), JSON.stringify(obj || {})); }catch(e){} }
+function loadDarkPref(){ return !!loadPrefs().dark; }
+function saveDarkPref(v){ const p = loadPrefs(); p.dark = !!v; savePrefs(p); }
+function loadOpenTabPref(){ return loadPrefs().openTab || null; }
+function saveOpenTabPref(id){ const p = loadPrefs(); p.openTab = id || null; savePrefs(p); }
 let _sb = null;
 function sbClient(){
   if(_sb) return _sb;
@@ -51809,6 +51825,7 @@ function App() {
   const [inGameDate, setInGameDate] = useState(null);
   const [modal, setModal] = useState(null);
   const [myEmail, setMyEmail] = useState(null);
+  React.useEffect(() => { try{ saveOpenTabPref(currentId); }catch(e){} }, [currentId]);
   useEffect(() => {
     const applyBlob = (d) => {
       const mig = migrateSpellLibrary(d.characters || [], d.spellLibrary);
@@ -51851,7 +51868,17 @@ function App() {
     });
     startRealtime();
     // Stage A: learn who is signed in (via the Cloudflare Access gate).
-    fetchIdentity().then(email => { if(email) setMyEmail(email); });
+    fetchIdentity().then(email => {
+      if(email){
+        setMyEmail(email);
+        // Now that we know who this is, load THEIR personal prefs (dark + last-open character).
+        try{
+          setDark(loadDarkPref());
+          const tab = loadOpenTabPref();
+          if(tab) setCurrentId(tab);
+        }catch(e){}
+      }
+    });
   }, []);
   useEffect(() => {
     // dark is a per-device pref: persist it locally only, and keep it OUT of the synced blob.
