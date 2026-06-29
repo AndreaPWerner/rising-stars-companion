@@ -28489,6 +28489,23 @@ const SUPABASE_KEY = 'sb_publishable_HSosInRTRTF0HwwB2zRxtA_QwhzHqep';
 const CLOUD_ROW_ID = 'main';
 // Device-local preferences (NEVER synced to the cloud — personal to each browser).
 const PREF_DARK_KEY = 'risingStars_dark';
+// ── Stage A: identity (who is signed in, via the Cloudflare Access gate) ──────
+// Reads the email Cloudflare authenticated. Only works on the deployed, gated site;
+// fails quietly (returns null) when opened locally or if the endpoint is unavailable.
+let _identityEmail = null;
+async function fetchIdentity(){
+  try{
+    const res = await fetch('/cdn-cgi/access/get-identity', { credentials: 'include' });
+    if(!res.ok) return null;
+    const j = await res.json();
+    const email = (j && (j.email || j.user_email || j.name)) || null;
+    _identityEmail = email;
+    return email;
+  }catch(e){
+    // Not deployed behind Access (e.g. local file) — identity simply unknown.
+    return null;
+  }
+}
 function loadDarkPref(){ try{ return localStorage.getItem(PREF_DARK_KEY) === '1'; }catch(e){ return false; } }
 function saveDarkPref(v){ try{ localStorage.setItem(PREF_DARK_KEY, v ? '1' : '0'); }catch(e){} }
 let _sb = null;
@@ -51791,6 +51808,7 @@ function App() {
   const [dark, setDark] = useState(false);
   const [inGameDate, setInGameDate] = useState(null);
   const [modal, setModal] = useState(null);
+  const [myEmail, setMyEmail] = useState(null);
   useEffect(() => {
     const applyBlob = (d) => {
       const mig = migrateSpellLibrary(d.characters || [], d.spellLibrary);
@@ -51832,6 +51850,8 @@ function App() {
       } catch(e){ console.warn('apply remote blob failed:', e); }
     });
     startRealtime();
+    // Stage A: learn who is signed in (via the Cloudflare Access gate).
+    fetchIdentity().then(email => { if(email) setMyEmail(email); });
   }, []);
   useEffect(() => {
     // dark is a per-device pref: persist it locally only, and keep it OUT of the synced blob.
@@ -51904,7 +51924,10 @@ function App() {
       spellLibrary
     },
     onImport: handleImport
-  }), React.createElement(DarkToggle, {
+  }), myEmail ? React.createElement('span', {
+    title: 'Signed in via the campaign gate',
+    style: { fontSize: '11px', opacity: 0.6, marginRight: '8px', fontFamily: 'var(--body)', whiteSpace: 'nowrap' }
+  }, '\u2737 ' + myEmail) : null, React.createElement(DarkToggle, {
     dark: dark,
     onToggle: () => setDark(d => !d)
   }))), !currentId ? React.createElement(LandingPage, {
