@@ -28487,6 +28487,10 @@ function resolveSpell(ref, library) {
 const SUPABASE_URL = 'https://nzvbayzjonyesirqggzh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HSosInRTRTF0HwwB2zRxtA_QwhzHqep';
 const CLOUD_ROW_ID = 'main';
+// Device-local preferences (NEVER synced to the cloud — personal to each browser).
+const PREF_DARK_KEY = 'risingStars_dark';
+function loadDarkPref(){ try{ return localStorage.getItem(PREF_DARK_KEY) === '1'; }catch(e){ return false; } }
+function saveDarkPref(v){ try{ localStorage.setItem(PREF_DARK_KEY, v ? '1' : '0'); }catch(e){} }
 let _sb = null;
 function sbClient(){
   if(_sb) return _sb;
@@ -51792,9 +51796,11 @@ function App() {
       const mig = migrateSpellLibrary(d.characters || [], d.spellLibrary);
       setCharacters(mig.characters);
       setSpellLibrary(mig.spellLibrary);
-      setDark(!!d.dark);
+      // dark mode is a per-device preference — intentionally NOT applied from synced data.
       setInGameDate(normGameDate(d.inGameDate) || normGameDate(d.inGameYear));
     };
+    // Load this device's own dark-mode preference (local only).
+    setDark(loadDarkPref());
     // 1) Instant load from local cache so the app is never blank on startup.
     const localD = loadData();
     if (localD) applyBlob(localD);
@@ -51828,9 +51834,10 @@ function App() {
     startRealtime();
   }, []);
   useEffect(() => {
+    // dark is a per-device pref: persist it locally only, and keep it OUT of the synced blob.
+    saveDarkPref(dark);
     const blob = {
       characters,
-      dark,
       inGameDate,
       spellLibrary
     };
