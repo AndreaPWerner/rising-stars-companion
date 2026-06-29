@@ -28503,6 +28503,17 @@ function canEditCharLayout(char, email){
   if(!owner) return false;            // unowned: only maintainer (handled above)
   return !!email && email.toLowerCase().trim() === owner;
 }
+// Full edit permission for a character (same rule as layout — owner or maintainer).
+function canEditChar(char, email){ return canEditCharLayout(char, email); }
+// Keys that ANYONE may change on a character through self-update (legitimate interactions:
+// heals/damage/temp-hp, allies stabilizing death saves, revival). Everything else is owner-only.
+const INTERACTION_KEYS = new Set(['hpCurrent','hpTemp','hpTempMax','hasTempHp','deathSaves','revivePenalty']);
+// Returns true if this update payload only touches interaction keys (so non-owners may apply it).
+function isInteractionOnly(patch){
+  if(!patch || typeof patch !== 'object') return true;
+  for(const k of Object.keys(patch)){ if(!INTERACTION_KEYS.has(k)) return false; }
+  return true;
+}
 async function fetchIdentity(){
   try{
     const res = await fetch('/cdn-cgi/access/get-identity', { credentials: 'include' });
@@ -50431,7 +50442,8 @@ function CharacterPage({
   spellLibrary = [],
   onUpdateLibrary,
   onAdvanceDate,
-  myEmail
+  myEmail,
+  canEdit = false
 }) {
   const [ribbonTab, setRibbonTab] = useState(null);
   const lv = totLevel(char.classes),
@@ -51966,10 +51978,10 @@ function App() {
   }, currentId && currentChar && React.createElement(React.Fragment, null, React.createElement("button", {
     className: "btn",
     onClick: () => setCurrentId(null)
-  }, "← Main Page"), React.createElement("button", {
+  }, "← Main Page"), (canEditChar(currentChar, myEmail) ? React.createElement("button", {
     className: "btn",
     onClick: () => setModal('edit')
-  }, "✎ Edit Character")), React.createElement(ExportImport, {
+  }, "✎ Edit Character") : null)), React.createElement(ExportImport, {
     data: {
       characters,
       dark,
@@ -51991,9 +52003,17 @@ function App() {
     onAdd: () => setModal('add')
   }) : currentChar ? React.createElement(CharacterPage, {
     myEmail: myEmail,
+    canEdit: canEditChar(currentChar, myEmail),
     char: currentChar,
     inGameDate: inGameDate,
-    onUpdate: p => updateChar(currentId, p),
+    onUpdate: p => {
+      // Self-edit gate: non-owners may only change interaction keys (heals, etc.).
+      if (!canEditChar(currentChar, myEmail) && !isInteractionOnly(p)) {
+        try { console.warn('Edit blocked: not the owner of', currentChar && (currentChar.commonName||currentChar.name)); } catch(e){}
+        return;
+      }
+      updateChar(currentId, p);
+    },
     onBack: () => setCurrentId(null),
     onEdit: () => setModal('edit'),
     characters: characters,
