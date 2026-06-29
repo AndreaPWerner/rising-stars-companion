@@ -37808,7 +37808,8 @@ function MagicCombatModule({
   onUpdateLibrary,
   inGameDate,
   onAdvanceDate,
-  canEditLayout = false
+  canEditLayout = false,
+  canEdit = false
 }) {
   const [editingSpell, setEditingSpell] = useState(null);
   const [infoSpell, setInfoSpell] = useState(null);
@@ -39032,6 +39033,7 @@ function MagicCombatModule({
     });
   };
   const doRest = (type, partials, restMode) => {
+    if (!canEdit) return;   // only the character's owner/maintainer may rest this character
     partials = partials || {};
     const recharges = type === 'long' ? ['short', 'long', 'dawn'] : ['short'];
     const restItems = type === 'long' ? ['long', 'dawn'] : ['short'];
@@ -39164,13 +39166,13 @@ function MagicCombatModule({
       setBookOpen(o => !o);
       if (!bookOpen) setCombatOpen(false);
     }
-  }, "✨ Magic"), React.createElement("button", {
+  }, "✨ Magic"), canEdit && React.createElement("button", {
     className: `magic-header-btn${(char.shortRestsUsed || 0) < 2 ? ' rest-glow' : ''}`,
     onClick: () => setRestMenu('short'),
     title: "Short Rest — two per day; spend hit dice, restores short-rest features & offers Arcane Recovery"
   }, "◑ Short Rest ", React.createElement("span", {
     className: "rest-count"
-  }, char.shortRestsUsed || 0, "/2")), React.createElement("button", {
+  }, char.shortRestsUsed || 0, "/2")), canEdit && React.createElement("button", {
     className: `magic-header-btn${longRestedToday ? '' : ' rest-glow'}`,
     onClick: () => setRestMenu('long'),
     title: "Long Rest — restores HP, slots, features, half your hit dice; clears temp HP; resets Arcane Recovery & short rests; sheds a level of exhaustion"
@@ -50639,7 +50641,8 @@ function CharacterPage({
     onUpdateLibrary: onUpdateLibrary,
     inGameDate: inGameDate,
     onAdvanceDate: onAdvanceDate,
-    canEditLayout: canEditCharLayout(char, myEmail)
+    canEditLayout: canEditCharLayout(char, myEmail),
+    canEdit: canEdit
   }) : React.createElement("div", {
     style: {
       padding: '20px 18px'
