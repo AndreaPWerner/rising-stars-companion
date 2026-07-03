@@ -29929,7 +29929,7 @@ function HealModal({
     const mod = getModBundle(ch).hpMax;
     const exh = ch.exhaustion || 0;
     const raw = (parseInt(ch.hpMax) || 0) + mod;
-    return exh >= 4 ? Math.floor(raw / 2) : raw;
+    return Math.max(1, exh >= 4 ? Math.floor(raw / 2) : raw);
   };
   const isDead = ch => {
     const d = ch.deathSaves || {};
@@ -30022,7 +30022,7 @@ function HealModal({
     }
     if (target) {
       const wasDown = (target.hpCurrent || 0) <= 0;
-      const newHp = Math.min(effMaxOf(target), (target.hpCurrent || 0) + amt);
+      const newHp = Math.max(target.hpCurrent || 0, Math.min(effMaxOf(target), (target.hpCurrent || 0) + amt));
       const patch = {
         hpCurrent: newHp
       };
@@ -30190,7 +30190,7 @@ function HealModal({
       color: 'var(--text-muted)',
       marginTop: 4
     }
-  }, target.hpCurrent || 0, " → ", Math.min(effMaxOf(target), (target.hpCurrent || 0) + (parseInt(amount) || 0)), " / ", effMaxOf(target), " HP")), npcTarget && React.createElement("div", {
+  }, target.hpCurrent || 0, " → ", Math.max(target.hpCurrent || 0, Math.min(effMaxOf(target), (target.hpCurrent || 0) + (parseInt(amount) || 0))), " / ", effMaxOf(target), " HP")), npcTarget && React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
@@ -30477,7 +30477,7 @@ function ReviveModal({
     }
     if (useDiamonds) spendDiamonds();
     if (target) {
-      const hp = spec.hp === 'full' ? parseInt(target.hpMax) || 1 : 1;
+      const hp = spec.hp === 'full' ? Math.max(1, parseInt(target.hpMax) || 1) : 1;
       onUpdateChar(target.id, {
         hpCurrent: hp,
         deathSaves: {
@@ -37626,7 +37626,7 @@ function RestModal({
       const rawMax = (parseInt(char.hpMax) || 0) + mod;
       const effMax = exh >= 4 ? Math.floor(rawMax / 2) : rawMax;
       onUpdate({
-        hpCurrent: Math.min(effMax, (char.hpCurrent || 0) + amt)
+        hpCurrent: Math.max(char.hpCurrent || 0, Math.min(Math.max(1, effMax), (char.hpCurrent || 0) + amt))
       });
       setRegain('');
     }
@@ -38674,7 +38674,7 @@ function MagicCombatModule({
     }
     const healAmt = parseInt(payload.heal && payload.heal.amount) || 0;
     const healTargets = payload.heal && payload.heal.targets || [];
-    if (healAmt > 0 && healTargets.includes('self')) patch.hpCurrent = Math.min(parseInt(char.hpMax) || 1, (parseInt(char.hpCurrent) || 0) + healAmt);
+    if (healAmt > 0 && healTargets.includes('self')) patch.hpCurrent = Math.max(parseInt(char.hpCurrent) || 0, Math.min(Math.max(1, parseInt(char.hpMax) || 1), (parseInt(char.hpCurrent) || 0) + healAmt));
     const dmgMap = {
       ...(payload.direct && payload.direct.dmg || {}),
       ...(payload.aoe && payload.aoe.dmg || {})
@@ -38702,7 +38702,7 @@ function MagicCombatModule({
     if (healAmt > 0) healTargets.filter(k => k.indexOf('ally:') === 0).forEach(t => {
       const ally = characters.find(cc => cc && cc.id === t.slice(5));
       if (ally) onUpdateChar(ally.id, {
-        hpCurrent: Math.min(parseInt(ally.hpMax) || 1, (parseInt(ally.hpCurrent) || 0) + healAmt)
+        hpCurrent: Math.max(parseInt(ally.hpCurrent) || 0, Math.min(Math.max(1, parseInt(ally.hpMax) || 1), (parseInt(ally.hpCurrent) || 0) + healAmt))
       });
     });
     setCollapseCardId(spell.id);
