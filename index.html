@@ -29394,7 +29394,7 @@ function HpTracker({
     className: "hp-lbl"
   }, "HP"), React.createElement("div", {
     className: "hp-fields"
-  }, React.createElement("input", {
+  }, (canEdit ? React.createElement("input", {
     className: "hp-inp",
     type: "number",
     value: char.hpCurrent,
@@ -29407,17 +29407,18 @@ function HpTracker({
     onChange: e => onUpdate({
       hpCurrent: parseInt(e.target.value) || 0
     })
-  }), React.createElement("span", {
+  }) : React.createElement("span", { style: { fontWeight: 600, padding: '0 3px', minWidth: '2ch', display: 'inline-block', textAlign: 'center' } }, String(char.hpCurrent ?? 0))), React.createElement("span", {
     className: "hp-sep"
-  }, "/"), React.createElement("input", {
+  }, "/"), (canEdit ? React.createElement("input", {
     className: "hp-inp",
     type: "number",
     min: "0",
     value: char.hpMax,
+    disabled: !canEdit,
     onChange: e => onUpdate({
       hpMax: parseInt(e.target.value) || 0
     })
-  }), hpMaxMod !== 0 && React.createElement("span", {
+  }) : React.createElement("span", { style: { fontWeight: 600, padding: '0 3px', minWidth: '2ch', display: 'inline-block', textAlign: 'center' } }, String(char.hpMax ?? 0))), hpMaxMod !== 0 && React.createElement("span", {
     style: {
       fontFamily: 'var(--heading)',
       fontSize: 'var(--fs-xs)',
@@ -29463,7 +29464,7 @@ function HpTracker({
     className: "hp-lbl"
   }, "Temp"), hasTmp ? React.createElement("div", {
     className: "hp-fields"
-  }, React.createElement("input", {
+  }, (canEdit ? React.createElement("input", {
     className: "hp-inp",
     type: "number",
     min: "0",
@@ -29472,9 +29473,9 @@ function HpTracker({
     onChange: e => onUpdate({
       hpTemp: parseInt(e.target.value) || 0
     })
-  }), React.createElement("span", {
+  }) : React.createElement("span", { style: { fontWeight: 600, padding: '0 3px', minWidth: '2ch', display: 'inline-block', textAlign: 'center' } }, String(char.hpTemp || 0))), React.createElement("span", {
     className: "hp-sep"
-  }, "/"), React.createElement("input", {
+  }, "/"), (canEdit ? React.createElement("input", {
     className: "hp-inp",
     type: "number",
     min: "0",
@@ -29483,7 +29484,7 @@ function HpTracker({
     onChange: e => onUpdate({
       hpTempMax: parseInt(e.target.value) || 0
     })
-  }), React.createElement("button", {
+  }) : React.createElement("span", { style: { fontWeight: 600, padding: '0 3px', minWidth: '2ch', display: 'inline-block', textAlign: 'center' } }, String(tMax))), (canEdit && React.createElement("button", {
     onClick: () => onUpdate({
       hasTempHp: false,
       hpTemp: 0,
@@ -29500,14 +29501,14 @@ function HpTracker({
       flexShrink: 0
     },
     title: "Remove Temp HP"
-  }, "✕")) : React.createElement("button", {
+  }, "✕"))) : (canEdit && React.createElement("button", {
     className: "hp-temp-btn",
     onClick: () => onUpdate({
       hasTempHp: true,
       hpTemp: 0,
       hpTempMax: 0
     })
-  }, "+ Set"))), React.createElement("div", {
+  }, "+ Set")))), React.createElement("div", {
     className: "combat-stat hd-stat"
   }, React.createElement("span", {
     className: "combat-stat-lbl"
@@ -29611,7 +29612,8 @@ function ConditionsTracker({
   char,
   onUpdate,
   characters = [],
-  onUpdateChar
+  onUpdateChar,
+  canEdit = false
 }) {
   const conditions = char.conditions || [];
   const condImmune = {
@@ -29700,21 +29702,21 @@ function ConditionsTracker({
     }
   }, "Exhaustion"), React.createElement("span", {
     className: "exh-ctrl"
-  }, React.createElement("button", {
+  }, (canEdit && React.createElement("button", {
     className: "exh-step",
     onClick: () => setExh(exhaustion - 1),
     disabled: exhaustion <= 0
-  }, "−"), React.createElement("span", {
+  }, "−")), React.createElement("span", {
     className: "exh-val",
     style: exhaustion > 0 ? {
       color: 'var(--text-on-dark)',
       fontWeight: 700
     } : undefined
-  }, exhaustion), React.createElement("button", {
+  }, exhaustion), (canEdit && React.createElement("button", {
     className: "exh-step",
     onClick: () => setExh(exhaustion + 1),
     disabled: exhaustion >= 6
-  }, "+"))), exhaustion > 0 && React.createElement("div", {
+  }, "+")))), exhaustion > 0 && React.createElement("div", {
     className: "combat-stat cond-line",
     title: 'Exhaustion ' + exhaustion + ': ' + [1, 2, 3, 4, 5, 6].filter(l => l <= exhaustion).map(l => EXHAUSTION_FX[l]).join(' · ')
   }, React.createElement("span", {
@@ -29740,7 +29742,7 @@ function ConditionsTracker({
     className: "combat-block-hd"
   }, React.createElement("span", {
     className: "combat-block-title"
-  }, "Conditions"), React.createElement("button", {
+  }, "Conditions"), (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     style: {
       fontSize: 'var(--fs-xs)',
@@ -29750,7 +29752,7 @@ function ConditionsTracker({
       setAdding(a => !a);
       setImmAdding(false);
     }
-  }, adding ? '✕ Cancel' : '+ Add')), adding && React.createElement("div", {
+  }, adding ? '✕ Cancel' : '+ Add'))), adding && React.createElement("div", {
     className: "cond-add-panel"
   }, React.createElement("div", {
     className: "cond-add-typetabs"
@@ -29858,11 +29860,11 @@ function ConditionsTracker({
       className: "cond-line-end"
     }, x.duration && React.createElement("span", {
       className: "cond-dur"
-    }, x.duration), React.createElement("button", {
+    }, x.duration), (canEdit && React.createElement("button", {
       className: "cond-x",
       onClick: () => remove(x.id),
       title: "Remove condition"
-    }, "✕")));
+    }, "✕"))));
   }), bondChips.map(bc => React.createElement("div", {
     key: bc.bondId + bc.casterId,
     className: "combat-stat cond-line",
@@ -29876,11 +29878,11 @@ function ConditionsTracker({
     className: "cond-line-end"
   }, bc.duration && React.createElement("span", {
     className: "cond-dur"
-  }, bc.duration), React.createElement("button", {
+  }, bc.duration), (canEdit && React.createElement("button", {
     className: "cond-x",
     onClick: () => dismissBond(bc.casterId, bc.bondId),
     title: "Clear this bond (its time is up)"
-  }, "✕")))), immKeys.map(k => {
+  }, "✕"))))), immKeys.map(k => {
     const col = conditionColor(k) || '#9be0a8';
     return React.createElement("div", {
       key: 'imm' + k,
@@ -29897,13 +29899,13 @@ function ConditionsTracker({
       style: {
         color: col
       }
-    }, k), immMap[k] === 'explicit' && React.createElement("button", {
+    }, k), immMap[k] === 'explicit' && (canEdit && React.createElement("button", {
       className: "cond-x",
       onClick: () => onUpdate({
         condImmunities: (char.condImmunities || []).filter(c => c !== k)
       }),
       title: "Remove immunity"
-    }, "✕")));
+    }, "✕"))));
   }), condMods.length > 0 && React.createElement("div", {
     className: "cond-passive"
   }, React.createElement("span", {
@@ -29920,6 +29922,7 @@ function HealModal({
   characters = [],
   spellLibrary = [],
   onUpdateChar,
+  myEmail = null,
   onClose
 }) {
   const effMaxOf = ch => {
@@ -29956,6 +29959,7 @@ function HealModal({
   const npcTarget = targetId === 'npc';
   const target = npcTarget ? null : (characters || []).find(c => c.id === targetId) || fixedTarget || null;
   const healerCands = fixedHealer ? [fixedHealer] : (characters || []).filter(ch => {
+    if (!canEditChar(ch, myEmail)) return false; // you may only volunteer resources of characters you own
     if (isDead(ch) || (ch.hpCurrent || 0) <= 0) return false;
     const r = resourcesOf(ch);
     return r.spells.length || r.items.length;
@@ -30349,6 +30353,7 @@ function ReviveModal({
   spellLibrary = [],
   inGameDate,
   onUpdateChar,
+  myEmail = null,
   onClose
 }) {
   const isDead = ch => {
@@ -30383,6 +30388,7 @@ function ReviveModal({
   const [targetId, setTargetId] = useState(fixedTarget ? fixedTarget.id : deadCands[0] ? deadCands[0].id : 'npc');
   const target = targetFixed ? fixedTarget : targetId === 'npc' ? null : (characters || []).find(c => c.id === targetId) || null;
   const casterCands = casterFixed ? [] : (characters || []).filter(c => {
+    if (!canEditChar(c, myEmail)) return false; // you may only volunteer resources of characters you own
     if (targetFixed && c.id === fixedTarget.id) return false;
     if (isDead(c) || (c.hpCurrent || 0) <= 0) return false;
     const has = (c.spells || []).map(r => resolveSpell(r, spellLibrary)).filter(Boolean).some(s => s.revivalTier === tier);
@@ -30675,7 +30681,8 @@ function DeathSaves({
   onUpdateChar,
   inGameDate,
   spellLibrary = [],
-  canEdit = false
+  canEdit = false,
+  myEmail = null
 }) {
   const ds = char.deathSaves || {
     passes: 0,
@@ -30891,32 +30898,32 @@ function DeathSaves({
     className: "ds-flair ds-flair-stable"
   }, "Stabilized"), (dying || stabilized) && endureSources.length > 0 && React.createElement("div", {
     className: "ds-endure-row"
-  }, endureSources.map(s => React.createElement("button", {
+  }, endureSources.map(s => (canEdit && React.createElement("button", {
     key: s.kind + s.id,
     className: "ds-btn endure",
     onClick: () => useEndure(s),
     title: "Drop to 1 HP instead of dying"
-  }, "↑ ", s.name, " → 1 HP"))), dying && React.createElement("div", {
+  }, "↑ ", s.name, " → 1 HP")))), dying && React.createElement("div", {
     className: "ds-btns"
-  }, React.createElement("button", {
+  }, (canEdit && React.createElement("button", {
     className: "ds-btn critfail",
     onClick: doCritFail
-  }, "Crit Fail"), React.createElement("button", {
+  }, "Crit Fail")), (canEdit && React.createElement("button", {
     className: "ds-btn fail",
     onClick: doFail
-  }, "Fail"), React.createElement("button", {
+  }, "Fail")), (canEdit && React.createElement("button", {
     className: "ds-btn stabilize-gold",
     onClick: doStabilize
-  }, "Stabilize"), (canEdit && React.createElement("button", {
+  }, "Stabilize")), (canEdit && React.createElement("button", {
     className: "ds-btn heal",
     onClick: () => setHealOpen(true)
-  }, "Heal")), React.createElement("button", {
+  }, "Heal")), (canEdit && React.createElement("button", {
     className: "ds-btn pass",
     onClick: doPass
-  }, "Pass"), React.createElement("button", {
+  }, "Pass")), (canEdit && React.createElement("button", {
     className: "ds-btn critpass",
     onClick: doCritPass
-  }, "Crit Pass")), stabilized && React.createElement("div", {
+  }, "Crit Pass"))), stabilized && React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -30934,28 +30941,30 @@ function DeathSaves({
     className: "ds-note"
   }, "Died ", formatGameDate(ds.deathDate), daysSince != null ? ` · ${daysSince} day${daysSince === 1 ? '' : 's'} ago` : '', "."), React.createElement("div", {
     className: "ds-btns"
-  }, ['revivify', 'raiseDead', 'resurrection', 'trueRes'].map(t => React.createElement("button", {
+  }, ['revivify', 'raiseDead', 'resurrection', 'trueRes'].map(t => (canEdit && React.createElement("button", {
     key: t,
     className: "ds-btn revive",
     onClick: () => setReviveTier(t),
     title: REVIVAL_SPECS[t].desc + (reviveWinOk(t) ? '' : ' — outside the usual window')
-  }, REVIVAL_SPECS[t].label, reviveWinOk(t) ? '' : ' ⚠'))), React.createElement("button", {
+  }, REVIVAL_SPECS[t].label, reviveWinOk(t) ? '' : ' ⚠')))), (canEdit && React.createElement("button", {
     className: "ds-btn",
     onClick: doUndo,
     title: "Undo an accidental death"
-  }, "Undo (misclick)")), reviveTier && React.createElement(ReviveModal, {
+  }, "Undo (misclick)"))), reviveTier && React.createElement(ReviveModal, {
     fixedTarget: char,
     fixedTier: reviveTier,
     characters: characters,
     spellLibrary: spellLibrary,
     inGameDate: inGameDate,
     onUpdateChar: onUpdateChar,
+    myEmail: myEmail,
     onClose: () => setReviveTier(null)
   }), healOpen && React.createElement(HealModal, {
     fixedTarget: char,
     characters: characters,
     spellLibrary: spellLibrary,
     onUpdateChar: onUpdateChar,
+    myEmail: myEmail,
     onClose: () => setHealOpen(false)
   }));
 }
@@ -33044,9 +33053,9 @@ function SlotTracker({
   }, (_, i) => React.createElement("span", {
     key: i,
     className: `slot-circle${i >= pRem ? ' used' : ''}`,
-    onClick: () => onUpdate({
+    onClick: canEdit ? (() => onUpdate({
       pactSlotsUsed: Math.min(pact.count, Math.max(0, pUsed + (i >= pRem ? -1 : 1)))
-    }),
+    })) : undefined,
     title: i >= pRem ? 'Recover Pact slot' : 'Use Pact slot'
   }))));
 }
@@ -37814,7 +37823,8 @@ function MagicCombatModule({
   inGameDate,
   onAdvanceDate,
   canEditLayout = false,
-  canEdit = false
+  canEdit = false,
+  myEmail = null
 }) {
   const [editingSpell, setEditingSpell] = useState(null);
   const [infoSpell, setInfoSpell] = useState(null);
@@ -38129,6 +38139,7 @@ function MagicCombatModule({
     }));
   };
   const doAR = () => {
+    if (!canEdit) return;
     const nu = {
       ...su
     };
@@ -39185,11 +39196,11 @@ function MagicCombatModule({
     className: `magic-header-btn${longRestedToday ? '' : ' rest-glow'}`,
     onClick: () => setRestMenu('long'),
     title: "Long Rest — restores HP, slots, features, half your hit dice; clears temp HP; resets Arcane Recovery & short rests; sheds a level of exhaustion"
-  }, "☽ Long Rest"), healAllyAvail && React.createElement("button", {
+  }, "☽ Long Rest"), healAllyAvail && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setHealOpen(true),
     title: "Heal yourself or a wounded ally with one of your spells or items"
-  }, "✚ Heal…"), repairAvail && (canEdit && React.createElement("button", {
+  }, "✚ Heal…")), repairAvail && (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setRepairOpen(true),
     title: "Mend damaged gear — your own or a party member's"
@@ -39199,13 +39210,13 @@ function MagicCombatModule({
     title: "Bring back a fallen ally with your revival magic"
   }, "✚ Raise Ally"))), bookOpen && React.createElement("div", {
     className: "magic-subbar"
-  }, React.createElement("button", {
+  }, (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setEditingSpell({
       ...defaultSpell(),
       sourceClass: (char.classes.find(c => c.spellcastingAbility !== '—') || {}).className || ''
     })
-  }, "+ Spell"), (canEdit && React.createElement("button", {
+  }, "+ Spell")), (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     onClick: () => setShowLibrary(true),
     title: "Add spells from the shared library"
@@ -39879,7 +39890,8 @@ function MagicCombatModule({
     onUpdateChar: onUpdateChar,
     inGameDate: inGameDate,
     spellLibrary: spellLibrary,
-    canEdit: canEdit
+    canEdit: canEdit,
+    myEmail: myEmail
   }), React.createElement("div", {
     className: "combat-cols"
   }, React.createElement("div", {
@@ -39992,29 +40004,29 @@ function MagicCombatModule({
     }, (_, i) => React.createElement("span", {
       key: i,
       className: `slot-circle${i >= cur ? ' used' : ''}`,
-      onClick: () => setU(i < cur ? i : i + 1),
+      onClick: canEdit ? (() => setU(i < cur ? i : i + 1)) : undefined,
       title: i < cur ? 'Spend' : 'Restore'
-    })) : React.createElement(React.Fragment, null, React.createElement("button", {
+    })) : React.createElement(React.Fragment, null, (canEdit && React.createElement("button", {
       className: "btn btn-sm",
       style: {
         padding: '0 6px',
         fontSize: 'var(--fs-xs)'
       },
       onClick: () => setU(cur - 1)
-    }, "−"), React.createElement("span", {
+    }, "−")), React.createElement("span", {
       style: {
         fontSize: 'var(--fs-xs)',
         minWidth: 34,
         textAlign: 'center'
       }
-    }, cur, "/", mx), React.createElement("button", {
+    }, cur, "/", mx), (canEdit && React.createElement("button", {
       className: "btn btn-sm",
       style: {
         padding: '0 6px',
         fontSize: 'var(--fs-xs)'
       },
       onClick: () => setU(cur + 1)
-    }, "+"))));
+    }, "+")))));
   })), grantedSources.length > 0 && React.createElement("div", {
     style: {
       marginTop: 10
@@ -40139,7 +40151,7 @@ function MagicCombatModule({
           fontSize: 'var(--fs-xs)',
           color: 'var(--text-subtle-on-dark)'
         }
-      }, atWill ? 'at will' : `${cost} charge${cost !== 1 ? 's' : ''}`, g.entry.castLevel > 0 ? ` · cast at level ${g.entry.castLevel}` : '')), (g.spell.name || '').trim().toLowerCase() === 'sending' ? React.createElement("button", {
+      }, atWill ? 'at will' : `${cost} charge${cost !== 1 ? 's' : ''}`, g.entry.castLevel > 0 ? ` · cast at level ${g.entry.castLevel}` : '')), (g.spell.name || '').trim().toLowerCase() === 'sending' ? (canEdit && React.createElement("button", {
         disabled: !ok,
         onClick: () => {
           if (ok) openSendGranted(src, g);
@@ -40158,7 +40170,7 @@ function MagicCombatModule({
           flexShrink: 0,
           outline: 'none'
         }
-      }, "🕊 Send") : React.createElement("select", {
+      }, "🕊 Send")) : (canEdit && React.createElement("select", {
         disabled: !ok,
         value: "",
         onChange: e => {
@@ -40204,7 +40216,7 @@ function MagicCombatModule({
           background: '#1a1a24',
           color: '#fff'
         }
-      }, "On someone else (NPC)")));
+      }, "On someone else (NPC)"))));
     })));
   }))), React.createElement("div", {
     style: {
@@ -40236,6 +40248,7 @@ function MagicCombatModule({
     },
     placeholder: "Tactics, conditions, homebrew notes…",
     value: char.combatEquipmentNotes || '',
+    readOnly: !canEdit,
     onChange: e => onUpdate({
       combatEquipmentNotes: e.target.value
     })
@@ -40247,13 +40260,15 @@ function MagicCombatModule({
     char: char,
     onUpdate: onUpdate,
     characters: characters,
-    onUpdateChar: onUpdateChar
+    onUpdateChar: onUpdateChar,
+    canEdit: canEdit
   }), React.createElement(ActiveEffectsPanel, {
     char: char,
     onUpdate: onUpdate,
     spellLibrary: spellLibrary,
     characters: characters,
-    onUpdateChar: onUpdateChar
+    onUpdateChar: onUpdateChar,
+    canEdit: canEdit
   }))))), editingSpell && ReactDOM.createPortal(React.createElement(SpellForm, {
     initial: editingSpell,
     char: char,
@@ -45401,7 +45416,8 @@ function ActiveEffectsPanel({
   onUpdate,
   spellLibrary = [],
   characters = [],
-  onUpdateChar
+  onUpdateChar,
+  canEdit = false
 }) {
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState(() => defaultEffect());
@@ -45643,14 +45659,14 @@ function ActiveEffectsPanel({
       textTransform: 'uppercase',
       color: 'var(--text-muted-on-dark)'
     }
-  }, "Active Effects"), React.createElement("button", {
+  }, "Active Effects"), (canEdit && React.createElement("button", {
     className: "magic-header-btn",
     style: {
       fontSize: 'var(--fs-xs)',
       padding: '2px 8px'
     },
     onClick: () => setAdding(a => !a)
-  }, adding ? '✕ Cancel' : '+ Add')), adding && React.createElement("div", {
+  }, adding ? '✕ Cancel' : '+ Add'))), adding && React.createElement("div", {
     style: {
       background: 'rgba(255,255,255,.07)',
       borderRadius: 6,
@@ -46308,7 +46324,7 @@ function ActiveEffectsPanel({
           overflow: 'hidden',
           textOverflow: 'ellipsis'
         }
-      }, strip(src.name)), React.createElement("button", {
+      }, strip(src.name)), (canEdit && React.createElement("button", {
         style: {
           background: 'none',
           border: '1px solid #9B59B6',
@@ -46321,7 +46337,7 @@ function ActiveEffectsPanel({
         },
         onClick: () => remove(src.id),
         title: "Drop concentration — clears it from all targets"
-      }, "Drop")), (names.length > 0 || allTags.length > 0) && React.createElement("div", {
+      }, "Drop"))), (names.length > 0 || allTags.length > 0) && React.createElement("div", {
         style: {
           display: 'flex',
           gap: 6,
@@ -46457,7 +46473,7 @@ function ActiveEffectsPanel({
   }, "⏱ may end early"), (e.condTags || []).map((ct, i) => {
     const cs = chipSty(ct.color || '#8E44AD');
     const cnt = parseInt(ct.saveCount) || 1;
-    return React.createElement("span", {
+    return (canEdit && React.createElement("span", {
       key: i,
       onClick: () => setSaveTrack({
         effectId: e.id,
@@ -46491,7 +46507,7 @@ function ActiveEffectsPanel({
       style: {
         opacity: .7
       }
-    }, "⚅"));
+    }, "⚅")));
   }), (e.damage || []).map((c, i) => {
     const b = compDiceAt(c, null, 0, 0);
     const dice = diceText({
@@ -46520,7 +46536,7 @@ function ActiveEffectsPanel({
       color: 'var(--text-subtle-on-dark)',
       fontStyle: 'italic'
     }
-  }, e.notes))), (e.condTags || []).some(ct => ct.dispelOnAction) && React.createElement("button", {
+  }, e.notes))), (e.condTags || []).some(ct => ct.dispelOnAction) && (canEdit && React.createElement("button", {
     style: {
       background: 'none',
       border: '1px solid var(--text-subtle-on-dark)',
@@ -46534,7 +46550,7 @@ function ActiveEffectsPanel({
     },
     onClick: () => dropByCastId(e),
     title: "I attacked or cast a spell — drop this (ends Invisibility, etc.)"
-  }, "⚔"), React.createElement("button", {
+  }, "⚔")), (canEdit && React.createElement("button", {
     style: {
       background: 'none',
       border: 'none',
@@ -46546,7 +46562,7 @@ function ActiveEffectsPanel({
     },
     onClick: () => remove(e.id),
     title: e.isAoeSource && e.castId ? 'Drop \u2014 clears this from everyone it hit' : e.upTo ? 'End early \u2014 \u2018up to\u2019 duration; the caster may drop this at will' : 'Dismiss effect'
-  }, "✕"))), saveTrack && (() => {
+  }, "✕")))), saveTrack && (() => {
     const ct = liveCt();
     return ct ? React.createElement(SaveTrackModal, {
       ct: ct,
@@ -50654,7 +50670,8 @@ function CharacterPage({
     inGameDate: inGameDate,
     onAdvanceDate: onAdvanceDate,
     canEditLayout: canEditCharLayout(char, myEmail),
-    canEdit: canEdit
+    canEdit: canEdit,
+    myEmail: myEmail
   }) : React.createElement("div", {
     style: {
       padding: '20px 18px'
