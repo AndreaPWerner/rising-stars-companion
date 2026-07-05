@@ -329,6 +329,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   </script>
   <style>
     :root {
+      --accent-ink:#fff;
       --bg:#EDD9A3; --bg2:#E4CC8C;
       --surface:rgba(255,250,230,0.82); --surface2:rgba(240,226,188,0.92);
       --border:rgba(139,105,20,0.28);
@@ -348,6 +349,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       --success-on-dark:#5FBF6F; --warn-on-dark:#E07A2C; --danger-on-dark:#E74C3C;
     }
     .dark {
+      --accent-ink:#19150F;
       --bg:#19150F; --bg2:#131009;
       --surface:rgba(30,25,16,0.90); --surface2:rgba(24,20,12,0.94);
       --border:rgba(210,168,50,0.20); --text:#F0C84A; --text-muted:#C8981C;
@@ -527,7 +529,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     /* ribbon */
     .char-ribbon{display:flex;border-top:1px solid var(--border);background:var(--surface2);border-radius:0 0 8px 8px;}
     .ribbon-btn{flex:1;font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;padding:10px 6px;border:none;background:none;color:var(--text-muted);cursor:pointer;transition:all .18s;border-bottom:2px solid transparent;white-space:nowrap;}
-    .ribbon-btn:hover{color:var(--text);}
+    .ribbon-btn:hover{color:var(--accent);background:var(--surface);}
     .ribbon-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--surface);}
     /* modal tabs */
     .modal-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;background:var(--surface2);}
@@ -712,7 +714,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     /* eldritch overlay */
     .eldritch-overlay{position:absolute;inset:0;pointer-events:none;z-index:2;transition:opacity 1.8s ease;}
     /* modal */
-    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
     .modal-box{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(196,150,42,.12) 0%,transparent 60%);border:1px solid var(--border);border-radius:10px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:fadeIn .22s ease both;}
     .modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:2;}
     .modal-title{font-family:var(--heading);font-size:var(--fs-lg);letter-spacing:var(--ls-wide);color:var(--accent);}
@@ -1004,28 +1006,36 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .banner-classinfo{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:1px;max-width:60%;color:var(--text-on-dark);text-shadow:0 1px 6px rgba(0,0,0,.7);z-index:5;}
     .banner-commonname{position:absolute;top:12px;left:24px;font-size:clamp(1.5rem,3.6vw,2.3rem);color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.85);line-height:1;z-index:5;}
     .banner-classrow{display:flex;align-items:center;gap:10px;}
-    .banner-lv-num{font-family:var(--heading);font-size:2.6rem;line-height:1;color:#e8cf8f;text-shadow:0 2px 10px rgba(0,0,0,.8);}
+    .banner-lv-num{font-family:var(--heading);font-size:2.6rem;line-height:1;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.8);}
     .banner-side-item{display:flex;flex-direction:row;align-items:baseline;gap:6px;white-space:nowrap;}
-    .banner-identity .id-label{color:rgba(232,221,192,.85);text-shadow:0 1px 5px rgba(0,0,0,.85);}
+    .banner-identity .id-label{color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.85);}
     .banner-identity .id-value{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85);font-size:var(--fs-xs);}
     .banner-identity .compact-counters{width:auto;margin-top:2px;}
-    .banner-identity .compact-row{flex-direction:column;align-items:center;gap:12px;}
-    .banner-identity .compact-lbl{color:rgba(232,221,192,.85);text-shadow:0 1px 5px rgba(0,0,0,.85);}
-    .banner-identity .ctr-btn-sm{background:rgba(10,14,28,.55);color:#f0e6c8;border-color:rgba(216,196,138,.45);}
+    .banner-identity .compact-row{flex-direction:column;align-items:flex-end;gap:12px;}
+    .banner-identity .compact-lbl{color:#fff;font-size:var(--fs-xs);text-shadow:0 1px 5px rgba(0,0,0,.85);}
+    .banner-identity .ctr-btn-sm{background:rgba(10,14,28,.55);color:#fff;border-color:#fff;}
     .banner-identity .ctr-val-sm{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85);}
-    .banner-identity .insp-sm{background:rgba(10,14,28,.55);border-color:rgba(216,196,138,.45);color:#f0e6c8;}
-    .banner-identity .eldritch-name-sm{text-shadow:0 1px 5px rgba(0,0,0,.85);}
+    .banner-identity .insp-sm{background:rgba(10,14,28,.55);border-color:#fff;color:#fff;line-height:1;padding:0;}
+    .banner-identity .eldritch-name-sm{text-shadow:0 1px 5px rgba(0,0,0,.85);color:#fff;font-size:var(--fs-xs);}
+    .banner-identity .eldritch-name-sm.exposed{color:#fff;}
+    .banner-identity .ctr-val-sm{font-size:var(--fs-xs);}
+    .banner-identity .banner-class-line,.banner-identity .banner-subclass-line{color:#fff;}
+    .banner-bottom-row .banner-epithet-line{color:#fff;}
+    .banner-bottom-row .id-value{color:#fff;}
     .banner-bottom-row{position:absolute;left:190px;right:180px;bottom:12px;display:flex;align-items:flex-end;gap:16px;white-space:nowrap;overflow:hidden;z-index:5;}
     .banner-name-block{display:flex;flex-direction:column;gap:1px;margin-right:4px;}
     .banner-bottom-row .banner-fullname{font-size:clamp(1rem,2vw,1.35rem);}
     .banner-bottom-row .banner-epithet-line{margin-bottom:0;}
     .banner-bottom-row .id-item{flex:none;}
-    .banner-bottom-row .id-label{color:rgba(232,221,192,.85);text-shadow:0 1px 5px rgba(0,0,0,.85);font-size:var(--fs-xs);white-space:nowrap;}
+    .banner-bottom-row .id-label{color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.85);font-size:var(--fs-xs);white-space:nowrap;}
     .banner-bottom-row .id-value{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85);font-size:var(--fs-xs);white-space:nowrap;}
     .banner-portrait{position:absolute;left:22px;bottom:0;z-index:6;}
     /* AC hover popover */
     .ac-chip{position:relative;cursor:default;}
     .ac-popover{position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 22px rgba(0,0,0,.32);padding:8px 11px;min-width:172px;display:none;}
+    .derived-chip{position:relative;}
+    .derived-chip:hover{z-index:400;}
+    .ac-popover{z-index:410;}
     .ac-chip:hover .ac-popover{display:block;}
     .ac-pop-row{display:flex;justify-content:space-between;gap:16px;font-size:var(--fs-xs);padding:2px 0;white-space:nowrap;}
     .ac-pop-row .acp-lbl{color:var(--text-muted);}
@@ -1242,7 +1252,15 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .offset-inp{width:42px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:3px 5px;outline:none;text-align:center;}
     @media(max-width:680px){.magic-edit-grid{grid-template-columns:1fr;}}
     @media(max-width:580px){.ability-grid{grid-template-columns:repeat(3,1fr);}.char-top{flex-direction:column;}.portrait-col{width:100%;border-right:none;border-bottom:1px solid var(--border);margin-top:0;}.form-grid,.form-grid-3{grid-template-columns:1fr;}.ability-form-grid{grid-template-columns:repeat(3,1fr);}.class-entry-row{grid-template-columns:1fr 1fr;}}
-  </style>
+  
+    .dark .btn-gold{color:#19150F;}
+    .dark .comm-toggle button.on{color:#19150F;}
+    .dark .comm-readtoggle button.on{color:#19150F;}
+    .dark .comm-dir-pick button.on{color:#19150F;}
+    .dark .jbook-arrow:hover:not(:disabled){color:#19150F;}
+    .dark .jbook-close-btn:hover{color:#19150F;}
+    .dark .sort-btn.active{color:#19150F;}
+    </style>
 </head>
 <body>
 <div id="root"></div>
@@ -1319,13 +1337,13 @@ const RIBBON_TABS = [{
   label: 'Inventory & Finances'
 }, {
   id: 'companions',
-  label: 'Companions'
+  label: 'Companions & Familiars'
 }, {
   id: 'comms',
   label: 'Communications'
 }, {
   id: 'notes',
-  label: 'Notes'
+  label: 'Journal & Notes'
 }];
 const SPELL_SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
 const SCHOOL_COLORS = {
@@ -28617,6 +28635,13 @@ let _lastSentClientId = null;
 // The React app registers a handler here so incoming cloud changes can update the UI.
 let _onRemoteBlob = null;
 function registerRemoteHandler(fn){ _onRemoteBlob = fn; }
+// Small corvid silhouette (replaces the dove — for Corvus).
+const RavenIcon = ({ size = 13 }) => React.createElement("svg", {
+  width: size, height: size, viewBox: "0 0 16 16", fill: "currentColor",
+  style: { verticalAlign: '-1.5px' }, "aria-hidden": true
+}, React.createElement("path", {
+  d: "M12.6 2.2c-1 0-1.9.5-2.4 1.3-.4-.1-.8-.2-1.2-.2-2.5 0-4.5 2-4.5 4.5 0 .5.1.9.2 1.3L1.2 13l4.4-1.5c.4.5 1 .9 1.6 1.2l-.5 1.8 1.7-1.4c.3 0 .5.1.8.1l.9 1.5.2-1.7c1.5-.6 2.6-2.1 2.6-3.8 0-.5-.1-1-.3-1.5l2.2-.9-2.4-.5c-.1-.8-.5-1.5-1.1-2l.8-1.4-1.5.7c-.3-.2-.7-.3-1-.4z"
+}));
 // ── Stage D: interaction events (visibility layer) ────────────────────────
 // Cross-character interactions (heals, money, items) announce themselves: each logs an
 // event into the synced blob; every OTHER open client shows a corner toast. No consent
@@ -28878,6 +28903,24 @@ function CompactCounters({
       gap: 2,
       alignItems: 'center'
     }
+  }, React.createElement("button", {
+    className: `insp-sm${char.inspiration ? ' on' : ''}`,
+    onClick: canEdit ? (() => onUpdate({
+      inspiration: !char.inspiration
+    })) : undefined,
+    title: canEdit ? (char.inspiration ? 'Inspired!' : 'No inspiration') : undefined,
+    style: canEdit ? undefined : {
+      cursor: 'default'
+    }
+  }, char.inspiration ? '✦' : '✧'), React.createElement("span", {
+    className: "compact-lbl"
+  }, "Inspiration")), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 2,
+      alignItems: 'center'
+    }
   }, React.createElement("div", {
     className: "ctr-sm"
   }, (canEdit && React.createElement("button", {
@@ -28892,24 +28935,6 @@ function CompactCounters({
   }, "+"))), React.createElement("span", {
     className: "compact-lbl"
   }, "Adversity")), React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 2,
-      alignItems: 'center'
-    }
-  }, React.createElement("button", {
-    className: `insp-sm${char.inspiration ? ' on' : ''}`,
-    onClick: canEdit ? (() => onUpdate({
-      inspiration: !char.inspiration
-    })) : undefined,
-    title: canEdit ? (char.inspiration ? 'Inspired!' : 'No inspiration') : undefined,
-    style: canEdit ? undefined : {
-      cursor: 'default'
-    }
-  }, char.inspiration ? '✦' : '✧'), React.createElement("span", {
-    className: "compact-lbl"
-  }, "Inspiration")), React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -28932,7 +28957,7 @@ function CompactCounters({
     onClick: () => bump('eldritchExposure', 1, 0, 5)
   }, "+"))), React.createElement("span", {
     className: "compact-lbl"
-  }, "Eldritch Exposure"), React.createElement("span", {
+  }, "Exposure"), React.createElement("span", {
     className: `eldritch-name-sm${char.eldritchExposure > 0 ? ' exposed' : ''}`
   }, el.name)))));
 }
@@ -29351,7 +29376,7 @@ function DerivedStats({
     v: pIns.pp,
     title: `Passive Insight = 10 + Insight modifier (${fmtMod(pIns.mod)})`
   }), React.createElement(Chip, {
-    l: "Prof",
+    l: "Proficiency",
     v: `+${pb}`
   }), saveDCs.map(d => React.createElement(Chip, {
     key: d.label,
@@ -33023,7 +33048,7 @@ function CommsTab({
       setSection('sendings');
       setQuery('');
     }
-  }, "🕊 Sendings")), React.createElement("div", {
+  }, React.createElement(RavenIcon, null), " Sendings")), React.createElement("div", {
     className: "comm-toolbar"
   }, React.createElement("input", {
     className: "comm-search form-inp",
@@ -33043,7 +33068,7 @@ function CommsTab({
   }, "Name")), React.createElement("button", {
     className: "btn btn-gold",
     onClick: compose
-  }, section === 'letters' ? '✒ Draft a Letter' : canCast ? '🕊 Cast Sending' : '🕊 Log a Sending')), section === 'sendings' && !canCast && React.createElement("p", {
+  }, section === 'letters' ? '✒ Draft a Letter' : [React.createElement(RavenIcon, { key: 'rv' }), canCast ? ' Cast Sending' : ' Log a Sending'])), section === 'sendings' && !canCast && React.createElement("p", {
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
@@ -35196,7 +35221,7 @@ function SpellCard({
       e.stopPropagation();
       onSend();
     }
-  }, "🕊 Send"), (preparedCast || ritualOnlyCast) && onCast && (spell.baseAcFormula || spell.acBonus || spell.speedMod || spell.speedFactor && spell.speedFactor !== 1 || spell.concentration || spell.duration && spell.duration !== 'Instantaneous' || spell.effects && spell.effects.length || spell.damage && spell.damage.length || spell.damageDice || spell.damageTypes && spell.damageTypes.length || spell.resolution === 'attack' || spell.resolution === 'save' || spell.aoeShape) && React.createElement("select", {
+  }, React.createElement(RavenIcon, null), " Send"), (preparedCast || ritualOnlyCast) && onCast && (spell.baseAcFormula || spell.acBonus || spell.speedMod || spell.speedFactor && spell.speedFactor !== 1 || spell.concentration || spell.duration && spell.duration !== 'Instantaneous' || spell.effects && spell.effects.length || spell.damage && spell.damage.length || spell.damageDice || spell.damageTypes && spell.damageTypes.length || spell.resolution === 'attack' || spell.resolution === 'save' || spell.aoeShape) && React.createElement("select", {
     className: "btn btn-icon",
     value: "",
     disabled: compBlocked,
@@ -39104,7 +39129,7 @@ function MagicCombatModule({
     rightColY: rcy,
     rightColBottom: rcb,
     rightColWidth: rcw
-  }); };
+  }); setEditBg(false); };
   const posOpts = ['center center', 'center top', 'center bottom', 'left center', 'right center', 'top left', 'top right', 'bottom left', 'bottom right'];
   const lvlNames = ['—', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
   const OffRow = ({
@@ -39223,7 +39248,7 @@ function MagicCombatModule({
       if (restMode === 'nextDay') {
         const tomorrow = addGameDay(inGameDate);
         updates.longRestDate = inGameDate || null;
-        if (onAdvanceDate && tomorrow && tomorrow !== inGameDate) onAdvanceDate();
+        /* long rest no longer advances the shared calendar — players track their own rest days */
       } else {
         updates.longRestDate = inGameDate || null;
       }
@@ -40281,7 +40306,7 @@ function MagicCombatModule({
           flexShrink: 0,
           outline: 'none'
         }
-      }, "🕊 Send")) : (canEdit && React.createElement("select", {
+      }, React.createElement(RavenIcon, null), " Send")) : (canEdit && React.createElement("select", {
         disabled: !ok,
         value: "",
         onChange: e => {
@@ -42314,20 +42339,17 @@ function ItemCard({
       borderColor: RARITY_COLOR[item.rarity],
       color: RARITY_COLOR[item.rarity]
     }
-  }, ITEM_RARITIES.find(r => r.id === item.rarity)?.label), React.createElement("span", {
+  }, ITEM_RARITIES.find(r => r.id === item.rarity)?.label), React.createElement("button", {
+    className: "btn btn-sm",
     onClick: e => {
       e.stopPropagation();
       onToggle('equipped', !item.equipped);
     },
-    title: item.equipped ? 'Unequip' : 'Equip',
     style: {
-      cursor: 'pointer',
-      color: item.equipped ? 'var(--accent)' : 'var(--text-muted)',
-      fontSize: 'var(--fs-sm)',
-      padding: '0 2px',
-      flexShrink: 0
+      fontSize: 'var(--fs-xs)',
+      padding: '1px 8px'
     }
-  }, item.equipped ? '●' : '○'), item.isMagic && React.createElement("span", {
+  }, item.equipped ? 'Unequip' : 'Equip'), item.isMagic && React.createElement("span", {
     className: "item-badge mag"
   }, "✦"), item.attuned && React.createElement("span", {
     className: "item-badge att"
@@ -43530,7 +43552,7 @@ function LedgerModal({
       padding: '5px 16px'
     },
     onClick: addEntry
-  }, "Add Entry")), years.length === 0 && React.createElement("p", {
+  }, "Log Entry")), years.length === 0 && React.createElement("p", {
     style: {
       color: 'var(--text-muted)',
       fontSize: 'var(--fs-sm)',
@@ -47245,7 +47267,7 @@ function SpellInfoModal({
       border: '1px solid ' + (pip === L ? 'var(--accent)' : 'var(--border)'),
       cursor: 'pointer',
       background: pip === L ? 'var(--accent)' : 'transparent',
-      color: pip === L ? '#fff' : 'inherit',
+      color: pip === L ? 'var(--accent-ink)' : 'inherit',
       fontSize: 'var(--fs-xs)',
       fontWeight: 600
     }
@@ -47457,7 +47479,7 @@ function SpellInfoModal({
     className: "btn",
     style: sBtn,
     onClick: onSend
-  }, "🕊 Send"), onEdit && React.createElement("button", {
+  }, React.createElement(RavenIcon, null), " Send"), onEdit && React.createElement("button", {
     className: "btn",
     style: sBtn,
     onClick: onEdit
@@ -47878,7 +47900,7 @@ function SpellLibraryModal({
       whiteSpace: 'nowrap',
       ...(mineOnly ? {
         background: 'var(--accent)',
-        color: '#fff',
+        color: 'var(--accent-ink)',
         borderColor: 'var(--accent)'
       } : {})
     },
@@ -49676,7 +49698,7 @@ function FeaturesTab({
     className: "passive-chip"
   }, "Passive Insight ", React.createElement("strong", null, passiveIns)), React.createElement("span", {
     className: "passive-chip"
-  }, "Prof Bonus ", React.createElement("strong", null, "+", pb)))), (() => {
+  }, "Proficiency Bonus ", React.createElement("strong", null, "+", pb)))), (() => {
     const defs = [];
     (char.features || []).forEach(f => (f.defenses || []).forEach(d => {
       if (d.target && d.target.trim()) defs.push({
@@ -49723,18 +49745,14 @@ function FeaturesTab({
       textTransform: 'uppercase',
       color: 'var(--text-muted)'
     }
-  }, "Skills ", React.createElement("span", {
-    style: {
-      opacity: .7
-    }
-  }, "● prof ◆ exp")), React.createElement("button", {
+  }, "Skills ", React.createElement("span", null, "● proficiency ◆ expertise")), React.createElement("button", {
     className: `sort-btn${profOnly ? ' active' : ''}`,
     style: {
       fontSize: 'var(--fs-xs)',
       padding: '1px 7px'
     },
     onClick: () => setProfOnly(p => !p)
-  }, profOnly ? 'All' : 'Prof only')), ABILITY_GROUPS.map(grp => {
+  }, profOnly ? '👁️ All' : '👁️ Prof only')), ABILITY_GROUPS.map(grp => {
     const visSkills = grp.skills.filter(id => !profOnly || skills[id]?.prof);
     if (profOnly && visSkills.length === 0) return null;
     const mod = eMod(char, grp.ability);
@@ -50631,7 +50649,7 @@ function CharacterPage({
     by = char.dob && char.dob.y ? parseInt(char.dob.y) : parseInt(char.birthYear);
   const derivedAge = iy && by ? `${iy - by}` : char.currentAge || '';
   const bgSpec = char.backgroundDetails?.specialty;
-  const bgLine = [char.background, bgSpec && !(char.background || '').toLowerCase().includes(bgSpec.toLowerCase()) ? bgSpec : null].filter(Boolean).join(' — ');
+  const bgLine = [char.background, bgSpec && !(char.background || '').toLowerCase().includes(bgSpec.toLowerCase()) ? bgSpec : null].filter(Boolean).join(' | ');
   const toggleRibbon = id => setRibbonTab(p => p === id ? null : id);
   const sp = char.saveProficiencies || defaultSP();
   const speeds = char.speeds || {
@@ -50660,13 +50678,20 @@ function CharacterPage({
     const filled = (char.classes || []).filter(c => c.className);
     const cl = filled.map(c => `${c.className} — ${c.level}`).join(' | ');
     const sc = filled.filter(c => c.subclass).map(c => c.subclass).join(' | ');
-    return React.createElement(React.Fragment, null, React.createElement("div", {
+    return React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 3
+      }
+    }, React.createElement("div", {
       className: "banner-classrow"
     }, React.createElement("div", {
       style: {
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-end'
+        alignItems: 'center'
       }
     }, cl && React.createElement("div", {
       className: "banner-class-line"
