@@ -1031,9 +1031,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .banner-bottom-row .id-value{color:#fff;text-shadow:0 1px 6px var(--bshadow,rgba(0,0,0,.85));font-size:var(--fs-xs);white-space:nowrap;}
     .banner-portrait{position:absolute;left:22px;bottom:0;z-index:6;}
     .banner-portrait .portrait-frame{width:var(--pw,150px);height:var(--ph,280px);border:var(--pborder,2px solid var(--border));box-shadow:var(--pglow,none);}
+    .banner-fullname-corner{position:absolute;left:calc(22px + var(--pw,150px) + 16px);bottom:10px;font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:#fff;text-shadow:0 1px 5px var(--bshadow,rgba(0,0,0,.85));z-index:6;white-space:nowrap;}
     .banner-player-corner{position:absolute;right:14px;bottom:10px;font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:#fff;text-shadow:0 1px 5px var(--bshadow,rgba(0,0,0,.85));z-index:6;}
     .banner-identity .banner-name-block{display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-bottom:2px;}
-    .banner-zodiac{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:4px;}
+    .banner-zodiac{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:2px;}
     .banner-zodiac-svg{width:86px;height:62px;overflow:visible;}
     .banner-zodiac-svg line{stroke:rgba(255,255,255,.5);stroke-width:1;}
     .banner-zodiac-svg circle{fill:#ffe9b8;filter:drop-shadow(0 0 3px rgba(255,220,140,.85));}
@@ -28656,7 +28657,7 @@ const ZODIAC_MAP = {
   sagittarius: { stars: [[30,40],[45,30],[60,36],[70,50],[60,64],[44,68],[30,58],[52,50]], lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[2,7],[7,5]] },
   capricornus: { stars: [[14,38],[34,54],[54,62],[74,54],[88,34],[50,36]], lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]] },
   aquarius: { stars: [[14,44],[29,34],[44,47],[59,35],[74,49],[88,39],[40,70]], lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[2,6]] },
-  pisces: { stars: [[14,30],[27,42],[41,52],[57,60],[74,66],[85,50],[80,32]], lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]] }
+  pisces: { stars: [[10,74],[38,8],[46,16],[40,22],[34,34],[30,44],[25,55],[18,66],[22,76],[34,75],[46,73],[58,72],[70,73],[80,72],[88,66],[96,74],[92,84],[82,84]], lines: [[1,2],[2,3],[3,1],[3,4],[4,5],[5,6],[6,7],[7,0],[0,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,13]] }
 };
 const ZODIAC_ALIASES = { scorpio: 'scorpius', capricorn: 'capricornus' };
 function normZodiac(z) {
@@ -28893,6 +28894,7 @@ function PortraitGallery({
     backgroundImage: `url(${cur})`,
     backgroundSize: bSize,
     backgroundPosition: pos,
+    backgroundRepeat: 'no-repeat',
     backgroundColor: bgCol
   } : {};
   return React.createElement("div", {
@@ -28989,8 +28991,7 @@ function CompactCounters({
       display: 'flex',
       flexDirection: 'column',
       gap: 2,
-      alignItems: 'center',
-      width: '100%'
+      alignItems: 'center'
     }
   }, React.createElement("div", {
     className: "eldritch-col"
@@ -50878,7 +50879,11 @@ function CharacterPage({
   }, React.createElement("div", {
     className: "char-banner",
     style: {
-      '--bshadow': hexToRgba(char.bannerShadowColor || '#000000', (char.bannerShadowOpacity != null ? char.bannerShadowOpacity : 85) / 100)
+      '--bshadow': hexToRgba(char.bannerShadowColor || '#000000', (char.bannerShadowOpacity != null ? char.bannerShadowOpacity : 85) / 100),
+      '--pw': (parseInt(char.portraitW) || 150) + 'px',
+      '--ph': (parseInt(char.portraitH) || 280) + 'px',
+      '--pborder': char.portraitBorder === false ? 'none' : '2px solid ' + (char.portraitBorderColor || 'var(--border)'),
+      '--pglow': char.portraitGlow && char.portraitBorder !== false ? '0 0 14px ' + (char.portraitBorderColor || '#C4962A') : 'none'
     }
   }, React.createElement("div", {
     className: "char-banner-bg",
@@ -50895,19 +50900,7 @@ function CharacterPage({
     }
   }), React.createElement("div", {
     className: "banner-identity"
-  }, React.createElement("div", {
-    className: "banner-name-block"
-  }, React.createElement("div", {
-    className: "banner-fullname",
-    style: {
-      fontFamily: char.characterFont
-    }
-  }, char.name), char.epithet && React.createElement("div", {
-    className: "banner-epithet-line",
-    style: {
-      fontFamily: char.characterFont
-    }
-  }, char.epithet)), (() => {
+  }, (() => {
     const filled = (char.classes || []).filter(c => c.className);
     const cl = filled.map(c => `${c.className} — ${c.level}`).join(' | ');
     const sc = filled.filter(c => c.subclass).map(c => c.subclass).join(' | ');
@@ -50949,14 +50942,10 @@ function CharacterPage({
     }
   }, char.commonName), char.playerName && React.createElement("div", {
     className: "banner-player-corner"
-  }, "Player | " + char.playerName), React.createElement("div", {
-    className: "banner-portrait",
-    style: {
-      '--pw': (parseInt(char.portraitW) || 150) + 'px',
-      '--ph': (parseInt(char.portraitH) || 280) + 'px',
-      '--pborder': char.portraitBorder === false ? 'none' : '2px solid ' + (char.portraitBorderColor || 'var(--border)'),
-      '--pglow': char.portraitGlow && char.portraitBorder !== false ? '0 0 14px ' + (char.portraitBorderColor || '#C4962A') : 'none'
-    }
+  }, "Player | " + char.playerName), char.name && React.createElement("div", {
+    className: "banner-fullname-corner"
+  }, [char.name, char.epithet].filter(Boolean).join(' | ')), React.createElement("div", {
+    className: "banner-portrait"
   }, React.createElement(PortraitGallery, {
     char: char,
     onUpdate: onUpdate
