@@ -43144,7 +43144,7 @@ function LedgerModal({
 }) {
   const ledger = char.ledger || [];
   const [kind, setKind] = useState('plain');
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(() => char.ledgerLastDate || null);
   const [desc, setDesc] = useState('');
   const [plainMode, setPlainMode] = useState('received');
   const Z = {
@@ -43310,7 +43310,8 @@ function LedgerModal({
         ...pD
       };
       onUpdate({
-        ledger: [...ledger, myEntry]
+        ledger: [...ledger, myEntry],
+        ledgerLastDate: date
       });
       onUpdateChar(partner.id, {
         ledger: [...(partner.ledger || []), pEntry]
@@ -43333,6 +43334,7 @@ function LedgerModal({
       return;
     }
     let deltas;
+    let extraPatch = {};
     if (kind === 'exchange') {
       deltas = {};
       CURR_IDS.forEach(c => {
@@ -43341,6 +43343,42 @@ function LedgerModal({
       if (CURR_IDS.every(c => !deltas[c])) {
         setErr('Enter the coin given and received.');
         return;
+      }
+      // Conversions draw from wherever the coin actually is: on person first,
+      // then safekeeping, then containers — never driving On Person negative.
+      for (const c of CURR_IDS) {
+        const giving = parseInt(give[c]) || 0;
+        if (giving <= 0) continue;
+        if ((liveBal[c] || 0) < giving) {
+          setErr(`Not enough ${CURR_META[c].name} anywhere (have ${liveBal[c] || 0}, giving ${giving}).`);
+          return;
+        }
+        const onP = coinOnPerson(char, c);
+        let overdraw = giving - Math.max(0, onP);
+        if (overdraw > 0) {
+          const curAll = { ...(char.currency || {}), ...(extraPatch.currency || {}) };
+          const cc = { ...(curAll[c] || {}) };
+          const safeHeld = parseInt(cc.safe) || 0;
+          const fromSafe = Math.min(safeHeld, overdraw);
+          if (fromSafe > 0) {
+            cc.safe = safeHeld - fromSafe;
+            overdraw -= fromSafe;
+          }
+          if (overdraw > 0 && cc.slots) {
+            const slots = { ...cc.slots };
+            for (const sk of Object.keys(slots)) {
+              if (overdraw <= 0) break;
+              const held = parseInt(slots[sk]) || 0;
+              const take = Math.min(held, overdraw);
+              if (take > 0) {
+                slots[sk] = held - take;
+                overdraw -= take;
+              }
+            }
+            cc.slots = slots;
+          }
+          extraPatch.currency = { ...curAll, [c]: cc };
+        }
       }
     } else if (plainMode === 'received') {
       deltas = {};
@@ -43367,7 +43405,9 @@ function LedgerModal({
         description: desc,
         isStart: false,
         ...deltas
-      }]
+      }],
+      ledgerLastDate: date,
+      ...extraPatch
     });
     setDesc('');
     setRecv(Z);
@@ -43379,6 +43419,10 @@ function LedgerModal({
   const spentEntered = CURR_IDS.some(c => parseInt(spent[c]) || 0);
   const spendPreview = kind === 'plain' && plainMode === 'spent' && spentEntered ? makeChangeMulti(liveBal, spent) : null;
   const years = [...new Set(ledger.map(entryYear))].sort((a, b) => a - b);
+  const latestYear = years.length ? years[years.length - 1] : null;
+  const [yearOpen, setYearOpen] = useState({});
+  const isYearOpen = yr => yearOpen[yr] !== undefined ? yearOpen[yr] : yr === latestYear;
+  const toggleYear = yr => setYearOpen(p => ({ ...p, [yr]: !isYearOpen(yr) }));
   const yearBal = yr => {
     const b = {};
     CURR_IDS.forEach(id => {
@@ -43469,14 +43513,14 @@ function LedgerModal({
     style: {
       maxWidth: characters.length > 1 ? 420 : 300
     }
-  }, [['plain', 'Gain / Spend'], ['exchange', 'Exchange'], ...(characters.length > 1 ? [['transfer', 'Transfer']] : [])].map(([k, lbl]) => React.createElement("button", {
-    key: k,
-    className: kind === k ? 'on' : '',
+  }, [{ id: 'recv', lbl: 'Receive', on: kind === 'plain' && plainMode === 'received', go: () => { setKind('plain'); setPlainMode('received'); } }, { id: 'spend', lbl: 'Spend', on: kind === 'plain' && plainMode === 'spent', go: () => { setKind('plain'); setPlainMode('spent'); } }, { id: 'exchange', lbl: 'Exchange', on: kind === 'exchange', go: () => setKind('exchange') }, ...(characters.length > 1 ? [{ id: 'transfer', lbl: 'Transfer', on: kind === 'transfer', go: () => setKind('transfer') }] : [])].map(b => React.createElement("button", {
+    key: b.id,
+    className: b.on ? 'on' : '',
     onClick: () => {
-      setKind(k);
+      b.go();
       setErr('');
     }
-  }, lbl))), React.createElement(GameDateField, {
+  }, b.lbl))), React.createElement(GameDateField, {
     value: date,
     onChange: setDate
   })), React.createElement("div", {
@@ -43490,20 +43534,7 @@ function LedgerModal({
     value: desc,
     onChange: e => setDesc(e.target.value),
     placeholder: "e.g. Payment for escort mission"
-  })), kind === 'plain' && React.createElement(React.Fragment, null, React.createElement("div", {
-    className: "comm-dir-pick",
-    style: {
-      marginBottom: 8,
-      maxWidth: 220
-    }
-  }, [['received', 'Received'], ['spent', 'Spent']].map(([k, lbl]) => React.createElement("button", {
-    key: k,
-    className: plainMode === k ? 'on' : '',
-    onClick: () => {
-      setPlainMode(k);
-      setErr('');
-    }
-  }, lbl))), plainMode === 'received' && React.createElement("div", {
+  })), kind === 'plain' && React.createElement(React.Fragment, null, plainMode === 'received' && React.createElement("div", {
     style: {
       marginBottom: 6
     }
@@ -43743,14 +43774,19 @@ function LedgerModal({
         marginBottom: 14
       }
     }, React.createElement("div", {
-      className: "ledger-year-hd"
-    }, React.createElement("span", null, "Year ", yr || '—'), React.createElement("span", {
+      className: "ledger-year-hd",
+    style: {
+      cursor: 'pointer'
+    },
+    onClick: () => toggleYear(yr),
+    title: "Click to expand / collapse"
+    }, React.createElement("span", null, isYearOpen(yr) ? "▾ " : "▸ ", "Year ", yr || '—'), React.createElement("span", {
       style: {
         fontSize: 'var(--fs-xs)',
         color: 'var(--text-muted)',
         fontWeight: 400
       }
-    }, "Net: ", CURR_IDS.filter(id => yb[id] !== 0).map(id => `${yb[id] > 0 ? '+' : ''}${yb[id]} ${CURR_META[id].abbr}`).join(' · ') || '—')), React.createElement("div", {
+    }, "Net: ", CURR_IDS.filter(id => yb[id] !== 0).map(id => `${yb[id] > 0 ? '+' : ''}${yb[id]} ${CURR_META[id].abbr}`).join(' · ') || '—')), isYearOpen(yr) && React.createElement(React.Fragment, null, React.createElement("div", {
       className: "ledger-entry-grid ledger-entry-hdr"
     }, React.createElement("span", null, "Date"), React.createElement("span", null, "Description"), CURR_IDS.map(id => React.createElement("span", {
       key: id,
@@ -44012,7 +44048,7 @@ function LedgerModal({
         textAlign: 'center',
         fontFamily: 'var(--heading)'
       }
-    }, fmtBal(closing[id] || 0))), React.createElement("span", null)));
+    }, fmtBal(closing[id] || 0))), React.createElement("span", null))));
   })))), document.body);
 }
 function BatchAddItemModal({
