@@ -32454,19 +32454,10 @@ function NotesTab({
       flexDirection: 'column',
       gap: 22
     }
-  }, React.createElement("div", null, React.createElement("div", {
-    className: "notes-sec-hdr"
-  }, "Backstory"), React.createElement("textarea", {
-    style: {
-      ...taStyle,
-      minHeight: 140
-    },
-    placeholder: "Where they came from, who they were before the story began…",
-    value: char.backstory || '',
-    onChange: e => onUpdate({
-      backstory: e.target.value
-    })
-  })), React.createElement("div", null, React.createElement("div", {
+  }, React.createElement(JournalBook, {
+    char: char,
+    onUpdate: onUpdate
+  }), React.createElement("div", null, React.createElement("div", {
     className: "notes-sec-hdr",
     style: {
       display: 'flex',
@@ -32510,7 +32501,40 @@ function NotesTab({
     }, formatGameDate(ev.date) || '—'), age != null && React.createElement("div", {
       className: "tl-age"
     }, "Age ", age));
-  }))), React.createElement("div", null, React.createElement("div", {
+  }))), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+      gap: 14,
+      alignItems: 'start'
+    }
+  }, React.createElement("div", {
+    style: {
+      maxHeight: 300,
+      overflowY: 'auto',
+      minWidth: 0,
+      paddingRight: 4
+    }
+  }, React.createElement("div", {
+    className: "notes-sec-hdr"
+  }, "Backstory"), React.createElement("textarea", {
+    style: {
+      ...taStyle,
+      minHeight: 140
+    },
+    placeholder: "Where they came from, who they were before the story began…",
+    value: char.backstory || '',
+    onChange: e => onUpdate({
+      backstory: e.target.value
+    })
+  })), React.createElement("div", {
+    style: {
+      maxHeight: 300,
+      overflowY: 'auto',
+      minWidth: 0,
+      paddingRight: 4
+    }
+  }, React.createElement("div", {
     className: "notes-sec-hdr",
     style: {
       display: 'flex',
@@ -32586,7 +32610,7 @@ function NotesTab({
     key: k.id,
     onClick: () => setEditKill(k),
     style: {
-      display: 'flex',
+      display: 'block',
       alignItems: 'baseline',
       gap: 8,
       fontSize: 'var(--fs-sm)',
@@ -32595,31 +32619,30 @@ function NotesTab({
       borderRadius: 5
     },
     className: "kill-row"
-  }, React.createElement("span", {
-    style: {
-      color: 'var(--text-muted)',
-      minWidth: 24
-    }
-  }, "×", parseInt(k.count) || 1), React.createElement("span", {
-    style: {
-      color: 'var(--text-muted)',
-      fontSize: 'var(--fs-xs)',
-      minWidth: 96
-    }
-  }, formatGameDate(k.date) || '—'), k.location && React.createElement("span", {
-    style: {
-      fontSize: 'var(--fs-xs)'
-    }
-  }, k.location), k.notes && React.createElement("span", {
-    style: {
-      color: 'var(--text-muted)',
-      fontSize: 'var(--fs-xs)',
-      fontStyle: 'italic',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, "— ", k.notes), React.createElement("span", {
+  }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        alignItems: 'baseline',
+        flexWrap: 'wrap'
+      }
+    }, React.createElement("span", {
+      style: {
+        color: 'var(--text-muted)',
+        fontSize: 'var(--fs-xs)'
+      }
+    }, formatGameDate(k.date) || '—'), k.location && React.createElement("span", {
+      style: {
+        fontSize: 'var(--fs-xs)'
+      }
+    }, k.location)), k.notes && React.createElement("div", {
+      style: {
+        color: 'var(--text-muted)',
+        fontSize: 'var(--fs-xs)',
+        fontStyle: 'italic',
+        marginTop: 1
+      }
+    }, k.notes), React.createElement("span", {
     style: {
       marginLeft: 'auto',
       color: 'var(--text-muted)',
@@ -32634,7 +32657,14 @@ function NotesTab({
       textAlign: 'right',
       fontStyle: 'italic'
     }
-  }, "Party-wide: ", partyTotal, " adversaries defeated"))), React.createElement("div", null, React.createElement("div", {
+  }, "Party-wide: ", partyTotal, " adversaries defeated"))), React.createElement("div", {
+    style: {
+      maxHeight: 300,
+      overflowY: 'auto',
+      minWidth: 0,
+      paddingRight: 4
+    }
+  }, React.createElement("div", {
     className: "notes-sec-hdr",
     style: {
       display: 'flex',
@@ -32674,10 +32704,7 @@ function NotesTab({
     }, "✎")), React.createElement("div", {
       className: "note-body"
     }, renderNoteBody(n.body)));
-  }))), React.createElement(JournalBook, {
-    char: char,
-    onUpdate: onUpdate
-  }), editEvent && React.createElement(TimelineEventModal, {
+  })))), editEvent && React.createElement(TimelineEventModal, {
     key: editEvent.id,
     event: editEvent,
     isNew: evtIsNew,
@@ -44350,7 +44377,8 @@ function InventoryTab({
   const [dupItem, setDupItem] = useState(null);
   const [showConverter, setShowConverter] = useState(false);
   const [containerExit, setContainerExit] = useState(null);
-  const [locFilter, setLocFilter] = useState('all');
+  const [catFilter, setCatFilter] = useState('all');
+  const [showStored, setShowStored] = useState(false);
   const [lendItem, setLendItem] = useState(null);
   const [showLentOut, setShowLentOut] = useState(false);
   const [giftItem, setGiftItem] = useState(null);
@@ -44694,13 +44722,18 @@ function InventoryTab({
     if (c.cv) valueByDen.cv = (valueByDen.cv || 0) + c.cv * q;
   });
   const extraContainers = active.filter(i => i.isExtradimensional);
+  
+  const carriedItems = active.filter(i => !i.storedIn && !i.equipped);
+  const equippedItems = active.filter(i => i.equipped);
+  const storedItems = active.filter(i => i.storedIn);
+  const catsPresent = ITEM_CATEGORIES.filter(c => carriedItems.some(i => i.category === c.id));
+  const catFiltered = catFilter === 'all' ? carriedItems : carriedItems.filter(i => i.category === catFilter);
   React.useEffect(() => {
-    if (locFilter !== 'all' && locFilter !== 'carried' && locFilter !== 'safe' && !active.find(i => i.id === locFilter)) setLocFilter('all');
+    if (catFilter !== 'all' && !carriedItems.some(i => i.category === catFilter)) setCatFilter('all');
   }, [char.inventory]);
-  const locFiltered = locFilter === 'all' ? active : locFilter === 'carried' ? active.filter(i => !i.storedIn) : locFilter === 'safe' ? active.filter(i => i.storedIn === 'safe') : active.filter(i => i.storedIn === locFilter);
   const groups = {};
   ITEM_CATEGORIES.forEach(c => {
-    const its = sortItems(locFiltered.filter(i => i.category === c.id));
+    const its = sortItems(catFiltered.filter(i => i.category === c.id));
     if (its.length) groups[c.id] = {
       ...c,
       items: its
@@ -44710,13 +44743,17 @@ function InventoryTab({
     style: {
       display: 'flex',
       gap: 14,
-      alignItems: 'flex-start',
+      alignItems: 'stretch',
       marginBottom: 10
     }
   }, React.createElement("div", {
     style: {
       width: '50%',
-      flexShrink: 0
+      flexShrink: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      minHeight: 0
     }
   }, React.createElement("div", {
     className: "inv-weight-block"
@@ -44755,18 +44792,7 @@ function InventoryTab({
         width: `${cpct * 100}%`
       }
     })));
-  }))), React.createElement("div", {
-    style: {
-      flex: 1,
-      minWidth: 0
-    }
-  }, React.createElement(CurrencySection, {
-    char: char,
-    onUpdate: onUpdate,
-    showConverter: showConverter,
-    setShowConverter: setShowConverter,
-    onOpenLedger: () => setShowLedger(true)
-  }))), React.createElement("div", {
+  })), React.createElement("div", {
     className: "inv-attu-row"
   }, React.createElement("span", {
     style: {
@@ -44791,38 +44817,6 @@ function InventoryTab({
       fontFamily: 'var(--heading)',
       fontSize: 'var(--fs-xs)',
       letterSpacing: 'var(--ls-wide)',
-      color: 'var(--text-muted)'
-    }
-  }, "Location:"), React.createElement("select", {
-    className: "form-sel",
-    style: {
-      width: 'auto',
-      fontSize: 'var(--fs-xs)',
-      padding: '3px 6px'
-    },
-    value: locFilter,
-    onChange: e => setLocFilter(e.target.value)
-  }, React.createElement("option", {
-    value: "all"
-  }, "All"), React.createElement("option", {
-    value: "carried"
-  }, "Carried"), React.createElement("option", {
-    value: "safe"
-  }, "Safekeeping"), extraContainers.map(ct => React.createElement("option", {
-    key: ct.id,
-    value: ct.id
-  }, ct.name || 'Storage'))), React.createElement("span", {
-    style: {
-      width: 1,
-      alignSelf: 'stretch',
-      background: 'var(--border)',
-      margin: '0 6px'
-    }
-  }), React.createElement("span", {
-    style: {
-      fontFamily: 'var(--heading)',
-      fontSize: 'var(--fs-xs)',
-      letterSpacing: 'var(--ls-wide)',
       textTransform: 'uppercase',
       color: 'var(--text-muted)'
     }
@@ -44830,14 +44824,7 @@ function InventoryTab({
     key: i,
     className: `attu-pip${i < attunedCount ? ' filled' : ''}`,
     title: i < attunedCount ? 'Attuned' : 'Open slot'
-  })), attunedCount > 0 && React.createElement("span", {
-    style: {
-      fontFamily: 'var(--body)',
-      fontSize: 'var(--fs-xs)',
-      color: 'var(--accent)',
-      fontStyle: 'italic'
-    }
-  }, active.filter(i => i.attuned).map(i => i.name).join(' · ')), React.createElement("span", {
+  })), React.createElement("span", {
     style: {
       flex: 1
     }
@@ -44857,7 +44844,76 @@ function InventoryTab({
     onClick: () => setEditingItem({
       ...defaultItem()
     })
-  }, "+ Add Item")), Object.values(groups).map(g => React.createElement("div", {
+  }, "+ Add Item")), React.createElement("div", {
+    style: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      paddingRight: 4,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8
+    }
+  }, React.createElement("div", {
+    className: "inv-cat-hdr"
+  }, React.createElement("span", null, "⚔ Equipped (", equippedItems.length, ")")), equippedItems.length === 0 && React.createElement("div", {
+    style: {
+      color: 'var(--text-muted)',
+      fontStyle: 'italic',
+      fontSize: 'var(--fs-xs)',
+      padding: '6px 0'
+    }
+  }, "Nothing equipped."), sortItems(equippedItems).map(item => React.createElement(ItemCard, {
+    key: item.id,
+    item: item,
+    char: char,
+    onEdit: () => setEditingItem({
+      ...item
+    }),
+    onDelete: () => requestDelItem(item.id),
+    onToggle: (field, val) => requestToggle(item.id, field, val),
+    onDuplicate: () => setDupItem(item),
+    onLend: () => setLendItem(item),
+    onReturn: () => returnUnit(item.id, char.id),
+    onGift: () => setGiftItem(item),
+    characters: characters
+  })))), React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, React.createElement(CurrencySection, {
+    char: char,
+    onUpdate: onUpdate,
+    showConverter: showConverter,
+    setShowConverter: setShowConverter,
+    onOpenLedger: () => setShowLedger(true)
+  }))), React.createElement("div", {
+    className: "inv-attu-row",
+    style: {
+      marginBottom: 6
+    }
+  }, React.createElement("span", {
+    style: {
+      fontFamily: 'var(--heading)',
+      fontSize: 'var(--fs-xs)',
+      letterSpacing: 'var(--ls-wide)',
+      color: 'var(--text-muted)'
+    }
+  }, "Filter:"), React.createElement("button", {
+    className: `sort-btn${catFilter === 'all' ? ' active' : ''}`,
+    onClick: () => setCatFilter('all')
+  }, "All (", carriedItems.length, ")"), catsPresent.map(c => React.createElement("button", {
+    key: c.id,
+    className: `sort-btn${catFilter === c.id ? ' active' : ''}`,
+    onClick: () => setCatFilter(c.id)
+  }, c.icon, " ", c.label))), React.createElement("div", {
+    style: {
+      height: 300,
+      overflowY: 'auto',
+      paddingRight: 4
+    }
+  }, Object.values(groups).map(g => React.createElement("div", {
     key: g.id,
     className: "inv-cat-section"
   }, React.createElement("div", {
@@ -44876,7 +44932,7 @@ function InventoryTab({
     onReturn: () => returnUnit(item.id, char.id),
     onGift: () => setGiftItem(item),
     characters: characters
-  })))), locFiltered.length === 0 && React.createElement("div", {
+  })))), catFiltered.length === 0 && React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '24px 0',
@@ -44884,7 +44940,39 @@ function InventoryTab({
       fontStyle: 'italic',
       fontSize: 'var(--fs-md)'
     }
-  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.'), lentOut.length > 0 && React.createElement("div", {
+  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.')), storedItems.length > 0 && React.createElement("div", {
+    style: {
+      marginTop: 10
+    }
+  }, React.createElement("button", {
+    className: "btn btn-sm",
+    style: {
+      fontSize: 'var(--fs-xs)',
+      opacity: .85
+    },
+    onClick: () => setShowStored(v => !v)
+  }, showStored ? '▲' : '▼', " In Storage (", storedItems.length, " item", storedItems.length !== 1 ? 's' : '', ")"), showStored && React.createElement("div", {
+    style: {
+      marginTop: 8,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8
+    }
+  }, sortItems(storedItems).map(item => React.createElement(ItemCard, {
+    key: item.id,
+    item: item,
+    char: char,
+    onEdit: () => setEditingItem({
+      ...item
+    }),
+    onDelete: () => requestDelItem(item.id),
+    onToggle: (field, val) => requestToggle(item.id, field, val),
+    onDuplicate: () => setDupItem(item),
+    onLend: () => setLendItem(item),
+    onReturn: () => returnUnit(item.id, char.id),
+    onGift: () => setGiftItem(item),
+    characters: characters
+  })))), lentOut.length > 0 && React.createElement("div", {
     style: {
       marginTop: 10
     }
