@@ -44378,7 +44378,7 @@ function InventoryTab({
   const [showConverter, setShowConverter] = useState(false);
   const [containerExit, setContainerExit] = useState(null);
   const [catFilter, setCatFilter] = useState('all');
-  const [showStored, setShowStored] = useState(false);
+  const [openContainers, setOpenContainers] = useState({});
   const [lendItem, setLendItem] = useState(null);
   const [showLentOut, setShowLentOut] = useState(false);
   const [giftItem, setGiftItem] = useState(null);
@@ -44725,7 +44725,7 @@ function InventoryTab({
   
   const carriedItems = active.filter(i => !i.storedIn && !i.equipped);
   const equippedItems = active.filter(i => i.equipped);
-  const storedItems = active.filter(i => i.storedIn);
+  const safeItems = active.filter(i => i.storedIn === 'safe');
   const catsPresent = ITEM_CATEGORIES.filter(c => carriedItems.some(i => i.category === c.id));
   const catFiltered = catFilter === 'all' ? carriedItems : carriedItems.filter(i => i.category === catFilter);
   React.useEffect(() => {
@@ -44743,7 +44743,7 @@ function InventoryTab({
     style: {
       display: 'flex',
       gap: 14,
-      alignItems: 'stretch',
+      alignItems: 'flex-start',
       marginBottom: 10
     }
   }, React.createElement("div", {
@@ -44770,29 +44770,7 @@ function InventoryTab({
     style: {
       width: `${Math.min(carryPct, 1) * 100}%`
     }
-  })), containers.map(ct => {
-    const cpct = ct.capacity > 0 ? Math.min(1, ct.load / ct.capacity) : 0;
-    const cover = ct.capacity > 0 && ct.load > ct.capacity;
-    return React.createElement("div", {
-      key: ct.id,
-      style: {
-        marginTop: 7
-      }
-    }, React.createElement("div", {
-      className: "inv-bar-label"
-    }, React.createElement("span", null, ct.name, ": ", React.createElement("strong", {
-      style: {
-        color: cover ? '#E74C3C' : 'var(--text)'
-      }
-    }, fmtWt(ct.load)), " / ", ct.capacity, " lb")), React.createElement("div", {
-      className: "inv-bar-track"
-    }, React.createElement("div", {
-      className: `inv-bar-carry${cover ? ' inv-bar-over' : cpct > 0.75 ? ' inv-bar-warn' : ''}`,
-      style: {
-        width: `${cpct * 100}%`
-      }
-    })));
-  })), React.createElement("div", {
+  }))), React.createElement("div", {
     className: "inv-attu-row"
   }, React.createElement("span", {
     style: {
@@ -44846,10 +44824,6 @@ function InventoryTab({
     })
   }, "+ Add Item")), React.createElement("div", {
     style: {
-      flex: 1,
-      minHeight: 0,
-      overflowY: 'auto',
-      paddingRight: 4,
       display: 'flex',
       flexDirection: 'column',
       gap: 8
@@ -44880,7 +44854,10 @@ function InventoryTab({
   })))), React.createElement("div", {
     style: {
       flex: 1,
-      minWidth: 0
+      minWidth: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12
     }
   }, React.createElement(CurrencySection, {
     char: char,
@@ -44888,7 +44865,45 @@ function InventoryTab({
     showConverter: showConverter,
     setShowConverter: setShowConverter,
     onOpenLedger: () => setShowLedger(true)
-  }))), React.createElement("div", {
+  }), React.createElement("div", null, React.createElement("div", {
+    className: "inv-cat-hdr"
+  }, React.createElement("span", null, "🔒 Safekeeping (", safeItems.length, ")")), safeItems.length === 0 ? React.createElement("div", {
+    style: {
+      color: 'var(--text-muted)',
+      fontStyle: 'italic',
+      fontSize: 'var(--fs-xs)',
+      padding: '4px 0'
+    }
+  }, "Nothing stored away.") : React.createElement("div", {
+    style: {
+      maxHeight: 460,
+      overflowY: 'auto',
+      paddingRight: 4,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      marginTop: 4
+    }
+  }, sortItems(safeItems).map(item => React.createElement(ItemCard, {
+    key: item.id,
+    item: item,
+    char: char,
+    onEdit: () => setEditingItem({
+      ...item
+    }),
+    onDelete: () => requestDelItem(item.id),
+    onToggle: (field, val) => requestToggle(item.id, field, val),
+    onDuplicate: () => setDupItem(item),
+    onLend: () => setLendItem(item),
+    onReturn: () => returnUnit(item.id, char.id),
+    onGift: () => setGiftItem(item),
+    characters: characters
+  })))))), React.createElement("div", {
+    className: "inv-cat-hdr",
+    style: {
+      marginTop: 4
+    }
+  }, React.createElement("span", null, "🎒 Carried (", carriedItems.length, ")")), carriedItems.length >= 5 && React.createElement("div", {
     className: "inv-attu-row",
     style: {
       marginBottom: 6
@@ -44909,7 +44924,7 @@ function InventoryTab({
     onClick: () => setCatFilter(c.id)
   }, c.icon, " ", c.label))), React.createElement("div", {
     style: {
-      height: 300,
+      maxHeight: 420,
       overflowY: 'auto',
       paddingRight: 4
     }
@@ -44940,25 +44955,67 @@ function InventoryTab({
       fontStyle: 'italic',
       fontSize: 'var(--fs-md)'
     }
-  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.')), storedItems.length > 0 && React.createElement("div", {
-    style: {
-      marginTop: 10
-    }
-  }, React.createElement("button", {
-    className: "btn btn-sm",
-    style: {
-      fontSize: 'var(--fs-xs)',
-      opacity: .85
-    },
-    onClick: () => setShowStored(v => !v)
-  }, showStored ? '▲' : '▼', " In Storage (", storedItems.length, " item", storedItems.length !== 1 ? 's' : '', ")"), showStored && React.createElement("div", {
-    style: {
-      marginTop: 8,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8
-    }
-  }, sortItems(storedItems).map(item => React.createElement(ItemCard, {
+  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.')), containers.map(ct => {
+    const ctItems = active.filter(i => i.storedIn === ct.id);
+    const cpct = ct.capacity > 0 ? Math.min(1, ct.load / ct.capacity) : 0;
+    const cover = ct.capacity > 0 && ct.load > ct.capacity;
+    const opened = !!openContainers[ct.id];
+    return React.createElement("div", {
+      key: ct.id,
+      style: {
+        marginTop: 10
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10,
+        flexWrap: 'wrap'
+      }
+    }, React.createElement("button", {
+      className: "btn btn-sm",
+      style: {
+        fontSize: 'var(--fs-xs)',
+        opacity: .9
+      },
+      onClick: () => setOpenContainers(p => ({ ...p, [ct.id]: !opened }))
+    }, opened ? '▲' : '▼', " 🎒 ", ct.name, " (", ctItems.length, " item", ctItems.length !== 1 ? 's' : '', ")"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        flex: '0 1 280px',
+        minWidth: 190
+      }
+    }, React.createElement("span", {
+      className: "inv-bar-label",
+      style: {
+        whiteSpace: 'nowrap',
+        marginBottom: 0
+      }
+    }, React.createElement("span", null, React.createElement("strong", {
+      style: {
+        color: cover ? '#E74C3C' : 'var(--text)'
+      }
+    }, fmtWt(ct.load)), " / ", ct.capacity, " lb")), React.createElement("div", {
+      className: "inv-bar-track",
+      style: {
+        flex: 1
+      }
+    }, React.createElement("div", {
+      className: `inv-bar-carry${cover ? ' inv-bar-over' : cpct > 0.75 ? ' inv-bar-warn' : ''}`,
+      style: {
+        width: `${cpct * 100}%`
+      }
+    })))), opened && React.createElement("div", {
+      style: {
+        marginTop: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8
+      }
+    }, sortItems(ctItems).map(item => React.createElement(ItemCard, {
     key: item.id,
     item: item,
     char: char,
@@ -44972,7 +45029,8 @@ function InventoryTab({
     onReturn: () => returnUnit(item.id, char.id),
     onGift: () => setGiftItem(item),
     characters: characters
-  })))), lentOut.length > 0 && React.createElement("div", {
+  }))));
+  }), lentOut.length > 0 && React.createElement("div", {
     style: {
       marginTop: 10
     }
