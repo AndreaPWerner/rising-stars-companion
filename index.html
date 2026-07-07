@@ -549,6 +549,14 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     /* companions */
     .companion-cards{display:flex;flex-direction:column;gap:12px;}
     .companion-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:start;}
+    .comp-status-chip{font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;border-radius:10px;padding:1px 8px;white-space:nowrap;}
+    .comp-chip-active{background:rgba(80,140,90,.22);color:#7da864;}
+    .comp-chip-dying{background:rgba(192,80,77,.22);color:#C0504D;}
+    .comp-chip-statue{background:rgba(140,140,150,.22);color:var(--text-muted);}
+    .comp-chip-dispelled,.comp-chip-vanished{background:rgba(150,110,180,.2);color:#9b7fb8;}
+    .comp-chip-destroyed,.comp-chip-dead{background:rgba(90,90,95,.25);color:var(--text-muted);}
+    .comp-hp-track{flex:1;height:8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;overflow:hidden;min-width:80px;}
+    .comp-hp-fill{height:100%;border-radius:3px;transition:width .25s;}
     .companion-img{width:80px;height:100px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
     .companion-img img{width:100%;height:100%;object-fit:cover;}
     .companion-info{display:flex;flex-direction:column;gap:8px;}
@@ -6254,6 +6262,14 @@ const defaultCompanion = () => ({
     burrow: 0
   },
   notes: ''
+,
+  hpTemp: 0,
+  status: 'active',
+  statue: false,
+  form: '',
+  species: '',
+  deathSaves: null,
+  archived: false
 });
 const defaultJournal = () => ({
   closedImg: '',
@@ -28556,7 +28572,7 @@ function canEditCharLayout(char, email){
 function canEditChar(char, email){ return canEditCharLayout(char, email); }
 // Keys that ANYONE may change on a character through self-update (legitimate interactions:
 // heals/damage/temp-hp, allies stabilizing death saves, revival). Everything else is owner-only.
-const INTERACTION_KEYS = new Set(['hpCurrent','hpTemp','hpTempMax','hasTempHp','deathSaves','revivePenalty']);
+const INTERACTION_KEYS = new Set(['hpCurrent','hpTemp','hpTempMax','hasTempHp','deathSaves','revivePenalty', 'companions']);
 // Returns true if this update payload only touches interaction keys (so non-owners may apply it).
 function isInteractionOnly(patch){
   if(!patch || typeof patch !== 'object') return true;
@@ -28685,6 +28701,42 @@ const ZodiacConstellation = ({ sign, label }) => {
     className: "banner-zodiac-label"
   }, label));
 };
+// ── Companions & Familiars: types, forms, behavior ──
+const COMP_TYPE_OPTS = [{ id: 'familiar', label: 'Familiar' }, { id: 'drake', label: 'Drake' }, { id: 'beast', label: 'Beast / Pet' }, { id: 'mount', label: 'Mount' }, { id: 'npc', label: 'NPC' }, { id: 'construct', label: 'Construct' }];
+const COMP_GLYPH = { familiar: '✨', drake: '🐉', beast: '🐾', mount: '🐎', npc: '🧍', construct: '⚙️' };
+function compTypeId(c) {
+  const t = String(c && c.type || '').toLowerCase();
+  if (t.includes('famil')) return 'familiar';
+  if (t.includes('drake')) return 'drake';
+  if (t.includes('mount') || t.includes('horse')) return 'mount';
+  if (t.includes('construct') || t.includes('homunc')) return 'construct';
+  if (t.includes('npc') || t.includes('humanoid')) return 'npc';
+  return 'beast';
+}
+const COMP_LIVING = t => t === 'beast' || t === 'mount' || t === 'npc';
+const COMP_ZERO_STATUS = t => t === 'familiar' ? 'dispelled' : t === 'drake' ? 'vanished' : t === 'construct' ? 'destroyed' : null;
+const COMP_STATUS_LABEL = { dispelled: 'Dispelled', vanished: 'Vanished', destroyed: 'Destroyed', dead: 'Dead' };
+const FAMILIAR_FORMS = [
+  { id: 'bat', name: 'Bat', ac: 12, hp: 1, speeds: { walk: 5, fly: 30 }, traits: 'Blindsight 60 ft. Echolocation; Keen Hearing.' },
+  { id: 'cat', name: 'Cat', ac: 12, hp: 2, speeds: { walk: 40, climb: 30 }, traits: 'Keen Smell.' },
+  { id: 'crab', name: 'Crab', ac: 11, hp: 2, speeds: { walk: 20, swim: 20 }, traits: 'Blindsight 30 ft. Amphibious.' },
+  { id: 'frog', name: 'Frog', ac: 11, hp: 1, speeds: { walk: 20, swim: 20 }, traits: 'Darkvision 30 ft. Amphibious; Standing Leap.' },
+  { id: 'hawk', name: 'Hawk', ac: 13, hp: 1, speeds: { walk: 10, fly: 60 }, traits: 'Keen Sight.' },
+  { id: 'lizard', name: 'Lizard', ac: 10, hp: 2, speeds: { walk: 20, climb: 20 }, traits: 'Darkvision 30 ft.' },
+  { id: 'octopus', name: 'Octopus', ac: 12, hp: 3, speeds: { walk: 5, swim: 30 }, traits: 'Darkvision 30 ft. Hold Breath; Ink Cloud; Underwater Camouflage.' },
+  { id: 'owl', name: 'Owl', ac: 11, hp: 1, speeds: { walk: 5, fly: 60 }, traits: 'Darkvision 120 ft. Flyby; Keen Hearing and Sight.' },
+  { id: 'snake', name: 'Poisonous Snake', ac: 13, hp: 2, speeds: { walk: 30, swim: 30 }, traits: 'Blindsight 10 ft.' },
+  { id: 'quipper', name: 'Quipper', ac: 13, hp: 1, speeds: { swim: 40 }, traits: 'Darkvision 60 ft. Blood Frenzy; Water Breathing.' },
+  { id: 'rat', name: 'Rat', ac: 10, hp: 1, speeds: { walk: 20 }, traits: 'Darkvision 30 ft. Keen Smell.' },
+  { id: 'raven', name: 'Raven', ac: 12, hp: 1, speeds: { walk: 10, fly: 50 }, traits: 'Mimicry.' },
+  { id: 'seahorse', name: 'Sea Horse', ac: 11, hp: 1, speeds: { swim: 20 }, traits: 'Water Breathing.' },
+  { id: 'spider', name: 'Spider', ac: 12, hp: 1, speeds: { walk: 20, climb: 20 }, traits: 'Darkvision 30 ft. Spider Climb; Web Sense; Web Walker.' },
+  { id: 'weasel', name: 'Weasel', ac: 13, hp: 1, speeds: { walk: 30 }, traits: 'Keen Hearing and Smell.' },
+  { id: 'imp', name: 'Imp (chain)', ac: 13, hp: 10, speeds: { walk: 20, fly: 40 }, traits: 'Darkvision 120 ft. Shapechanger; Devil\u2019s Sight; Magic Resistance; Invisibility.' },
+  { id: 'pseudodragon', name: 'Pseudodragon (chain)', ac: 13, hp: 7, speeds: { walk: 15, fly: 60 }, traits: 'Blindsight 10 ft., Darkvision 60 ft. Keen Senses; Magic Resistance; Limited Telepathy.' },
+  { id: 'quasit', name: 'Quasit (chain)', ac: 13, hp: 7, speeds: { walk: 40 }, traits: 'Darkvision 120 ft. Shapechanger; Magic Resistance; Invisibility; Scare.' },
+  { id: 'sprite', name: 'Sprite (chain)', ac: 15, hp: 2, speeds: { walk: 10, fly: 40 }, traits: 'Invisibility; Heart Sight; Longbow \u0026 Shortsword.' }
+];
 function hexToRgba(hex, a) {
   try {
     const h = (hex || '#000000').replace('#', '');
@@ -30131,6 +30183,7 @@ function HealModal({
     };
   };
   const targetCands = fixedTarget ? [fixedTarget] : (characters || []).filter(ch => !isDead(ch) && (ch.hpCurrent || 0) < effMaxOf(ch));
+  const compCands = fixedTarget ? [] : (characters || []).flatMap(ch => (ch.companions || []).filter(c => !c.archived && !c.statue && c.status !== 'dead' && !(c.deathSaves && c.deathSaves.dead) && (COMP_ZERO_STATUS(compTypeId(c)) ? (!c.status || c.status === 'active') : true) && (parseInt(c.hp) || 0) < (parseInt(c.hpMax) || 0)).map(c => ({ owner: ch, comp: c })));
   const [targetId, setTargetId] = useState(fixedTarget ? fixedTarget.id : targetCands[0] ? targetCands[0].id : 'npc');
   const npcTarget = targetId === 'npc';
   const target = npcTarget ? null : (characters || []).find(c => c.id === targetId) || fixedTarget || null;
@@ -30196,6 +30249,31 @@ function HealModal({
         });
       }
     }
+    if (targetId && targetId.startsWith('comp:')) {
+      const parts = targetId.split(':');
+      const owner = (characters || []).find(c => c.id === parts[1]);
+      const comp = owner && (owner.companions || []).find(c => c.id === parts[2]);
+      if (owner && comp) {
+        const cmax = parseInt(comp.hpMax) || 0;
+        const healed = Math.min(cmax, Math.max(0, parseInt(comp.hp) || 0) + amt);
+        onUpdateChar(owner.id, {
+          companions: (owner.companions || []).map(c => c.id === comp.id ? {
+            ...c,
+            hp: healed,
+            deathSaves: healed > 0 ? null : c.deathSaves,
+            status: healed > 0 ? 'active' : c.status
+          } : c)
+        });
+        logInteractionEvent({
+          type: 'heal',
+          fromName: healer ? (healer.commonName || healer.name || 'Someone') : 'Someone',
+          toName: (comp.name || 'a companion') + ' (' + (owner.commonName || owner.name) + "'s)",
+          summary: 'Healed ' + amt + ' HP' + (chosenSpell ? ' (' + (chosenSpell.name || 'spell') + ')' : chosenItem ? ' (' + (chosenItem.name || 'item') + ')' : '')
+        });
+      }
+      onClose();
+      return;
+    }
     if (target) {
       const wasDown = (target.hpCurrent || 0) <= 0;
       const newHp = Math.max(target.hpCurrent || 0, Math.min(effMaxOf(target), Math.max(0, target.hpCurrent || 0) + amt));
@@ -30260,7 +30338,12 @@ function HealModal({
   }, targetCands.map(ch => React.createElement("option", {
     key: ch.id,
     value: ch.id
-  }, ch.commonName || ch.name || 'Ally', " — ", ch.hpCurrent || 0, "/", effMaxOf(ch), " HP")), React.createElement("option", {
+  }, ch.commonName || ch.name || 'Ally', " — ", ch.hpCurrent || 0, "/", effMaxOf(ch), " HP")), compCands.length > 0 && React.createElement("optgroup", {
+    label: "Companions"
+  }, compCands.map(cc => React.createElement("option", {
+    key: 'comp:' + cc.owner.id + ':' + cc.comp.id,
+    value: 'comp:' + cc.owner.id + ':' + cc.comp.id
+  }, cc.comp.name || 'Unnamed', " (", cc.owner.commonName || cc.owner.name, "'s)"))), React.createElement("option", {
     value: "npc"
   }, "NPC / unlisted character")), React.createElement("div", {
     className: "rest-sec-lbl",
@@ -31154,450 +31237,381 @@ function DeathSaves({
 }
 function CompanionsTab({
   char,
-  onUpdate
+  onUpdate,
+  canEdit = false
 }) {
   const [editing, setEditing] = useState(null);
+  const [showDeparted, setShowDeparted] = useState(false);
+  const [resummonFor, setResummonFor] = useState(null);
   const companions = char.companions || [];
-  const startAdd = () => setEditing(defaultCompanion());
-  const startEdit = c => setEditing({
-    ...c,
-    abilityScores: {
-      ...c.abilityScores
-    },
-    speeds: {
-      ...c.speeds
-    }
-  });
-  const cancelEdit = () => setEditing(null);
-  const setF = p => setEditing(f => ({
-    ...f,
-    ...p
-  }));
-  const setAs = (k, v) => setEditing(f => ({
-    ...f,
-    abilityScores: {
-      ...f.abilityScores,
-      [k]: parseInt(v) || 10
-    }
-  }));
-  const setSp = (k, v) => setEditing(f => ({
-    ...f,
-    speeds: {
-      ...f.speeds,
-      [k]: parseInt(v) || 0
-    }
-  }));
-  const saveComp = () => {
-    if (!editing) return;
-    const isNew = !companions.find(c => c.id === editing.id);
-    const updated = isNew ? [...companions, editing] : companions.map(c => c.id === editing.id ? editing : c);
-    onUpdate({
-      companions: updated
-    });
+  const roster = companions.filter(c => !c.archived);
+  const departed = companions.filter(c => c.archived);
+  const patch = (id, p) => {
+    if (!canEdit) return;
+    onUpdate({ companions: companions.map(c => c.id === id ? { ...c, ...p } : c) });
+  };
+  const save = draft => {
+    if (!canEdit) return;
+    const exists = companions.some(c => c.id === draft.id);
+    onUpdate({ companions: exists ? companions.map(c => c.id === draft.id ? draft : c) : [...companions, draft] });
     setEditing(null);
   };
-  const deleteComp = id => onUpdate({
-    companions: companions.filter(c => c.id !== id)
-  });
-  const adjustHp = (id, d) => onUpdate({
-    companions: companions.map(c => c.id === id ? {
-      ...c,
-      hp: Math.max(0, Math.min(parseInt(c.hpMax) || 9999, (parseInt(c.hp) || 0) + d))
-    } : c)
-  });
-  return React.createElement("div", null, React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 14
+  const del = id => {
+    if (!canEdit) return;
+    onUpdate({ companions: companions.filter(c => c.id !== id) });
+    setEditing(null);
+  };
+  const bumpHp = (c, d) => {
+    const t = compTypeId(c);
+    const max = parseInt(c.hpMax) || 0;
+    let temp = parseInt(c.hpTemp) || 0;
+    let hp = parseInt(c.hp) || 0;
+    if (d < 0 && temp > 0) {
+      const use = Math.min(temp, -d);
+      temp -= use;
+      d += use;
     }
+    hp = Math.max(0, Math.min(max, hp + d));
+    const p = { hp: hp, hpTemp: temp };
+    if (hp === 0 && d < 0) {
+      const z = COMP_ZERO_STATUS(t);
+      if (z) p.status = z;
+      else if (!c.deathSaves) p.deathSaves = { passes: 0, fails: 0, stabilized: false, dead: false };
+    }
+    if (hp > 0) {
+      p.deathSaves = null;
+      if (c.status && c.status !== 'active') p.status = 'active';
+    }
+    patch(c.id, p);
+  };
+  const dsBump = (c, kind) => {
+    const ds = { passes: 0, fails: 0, stabilized: false, dead: false, ...(c.deathSaves || {}) };
+    ds[kind] = Math.min(3, (ds[kind] || 0) + 1);
+    const p = { deathSaves: ds };
+    if (ds.fails >= 3) {
+      ds.dead = true;
+      p.status = 'dead';
+    }
+    patch(c.id, p);
+  };
+  const resummon = c => {
+    if (compTypeId(c) === 'familiar') setResummonFor(c);
+    else patch(c.id, { status: 'active', hp: parseInt(c.hpMax) || 0, hpTemp: 0, deathSaves: null });
+  };
+  const applyForm = (c, f) => {
+    patch(c.id, {
+      status: 'active', form: f ? f.id : c.form, species: f ? f.name : c.species,
+      ac: f ? f.ac : c.ac, hpMax: f ? f.hp : c.hpMax, hp: f ? f.hp : parseInt(c.hpMax) || 0, hpTemp: 0, deathSaves: null,
+      size: f ? 'Tiny' : c.size,
+      speeds: f ? { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 } : c.speeds
+    });
+    setResummonFor(null);
+  };
+  const speedText = c => Object.entries(c.speeds || {}).filter(e => e[1] > 0).map(e => e[0].charAt(0).toUpperCase() + e[0].slice(1) + ' ' + e[1]).join(' \u00b7 ');
+  const renderCard = c => {
+    const t = compTypeId(c);
+    const living = COMP_LIVING(t);
+    const ds = c.deathSaves;
+    const dying = living && ds && !ds.dead && !ds.stabilized && (parseInt(c.hp) || 0) === 0;
+    const gone = c.status && c.status !== 'active' && COMP_STATUS_LABEL[c.status];
+    const statue = !!c.statue;
+    const hp = parseInt(c.hp) || 0, max = parseInt(c.hpMax) || 0, temp = parseInt(c.hpTemp) || 0;
+    const pct = max > 0 ? Math.min(1, hp / max) : 0;
+    const badge = (COMPANION_TYPES_LABEL(t) + (c.species ? ' \u00b7 ' + c.species : '')).toUpperCase();
+    return React.createElement("div", {
+      key: c.id,
+      className: "companion-card",
+      style: statue ? { opacity: .82 } : gone ? { opacity: .78 } : undefined
+    }, React.createElement("div", {
+      className: "companion-img",
+      style: statue ? { filter: 'grayscale(1)', opacity: .8 } : gone ? { opacity: .5 } : undefined
+    }, c.imageUrl ? React.createElement("img", {
+      src: c.imageUrl,
+      alt: c.name,
+      style: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }
+    }) : React.createElement("span", {
+      style: { fontSize: 26 }
+    }, COMP_GLYPH[t] || '\u2728')), React.createElement("div", {
+      className: "companion-info"
+    }, React.createElement("div", {
+      className: "companion-name-row"
+    }, React.createElement("span", {
+      className: "companion-name"
+    }, c.name || 'Unnamed'), React.createElement("span", {
+      className: "companion-type-badge"
+    }, badge), statue && React.createElement("span", {
+      className: "comp-status-chip comp-chip-statue"
+    }, "🗿 Statue"), !statue && dying && React.createElement("span", {
+      className: "comp-status-chip comp-chip-dying"
+    }, "Dying"), !statue && !dying && ds && ds.stabilized && !ds.dead && React.createElement("span", {
+      className: "comp-status-chip comp-chip-statue"
+    }, "Stabilized"), !statue && gone && React.createElement("span", {
+      className: `comp-status-chip comp-chip-${c.status}`
+    }, COMP_STATUS_LABEL[c.status]), !statue && !dying && !gone && !(ds && ds.stabilized) && React.createElement("span", {
+      className: "comp-status-chip comp-chip-active"
+    }, "Active"), canEdit && React.createElement("button", {
+      className: "btn btn-icon",
+      style: { marginLeft: 'auto' },
+      title: "Edit companion",
+      onClick: () => setEditing({ ...c, abilityScores: { ...(c.abilityScores || {}) }, speeds: { ...(c.speeds || {}) } })
+    }, "\u2699")), gone ? React.createElement("div", {
+      style: { display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }
+    }, canEdit && React.createElement("button", {
+      className: "btn btn-sm btn-gold",
+      onClick: () => resummon(c)
+    }, c.status === 'dead' ? 'Memorialize\u2026' : '\u2728 Resummon\u2026'), c.status === 'dead' && canEdit && React.createElement("button", {
+      className: "btn btn-sm",
+      onClick: () => patch(c.id, { archived: true })
+    }, "🕯 Send to Departed"), React.createElement("span", {
+      style: { fontSize: 'var(--fs-xs)', fontStyle: 'italic', color: 'var(--text-muted)' }
+    }, t === 'familiar' ? '1 hr ritual \u00b7 10 gp incense \u2014 may choose a new form' : t === 'drake' ? 'Returns after a long rest, or by expending a spell slot' : t === 'construct' ? 'Requires repair or rebuilding' : '')) : dying ? React.createElement("div", {
+      style: { display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, flexWrap: 'wrap' }
+    }, React.createElement("span", {
+      style: { fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }
+    }, "Saves:"), [0, 1, 2].map(i => React.createElement("span", {
+      key: 'p' + i,
+      className: `skill-pip${i < (ds.passes || 0) ? ' active' : ''}`,
+      style: { cursor: canEdit ? 'pointer' : 'default' },
+      onClick: canEdit ? () => dsBump(c, 'passes') : undefined
+    })), React.createElement("span", {
+      style: { fontSize: 'var(--fs-xs)', color: '#C0504D' }
+    }, "Fails:"), [0, 1, 2].map(i => React.createElement("span", {
+      key: 'f' + i,
+      className: 'skill-pip',
+      style: { cursor: canEdit ? 'pointer' : 'default', background: i < (ds.fails || 0) ? '#C0504D' : undefined, borderColor: i < (ds.fails || 0) ? '#C0504D' : undefined },
+      onClick: canEdit ? () => dsBump(c, 'fails') : undefined
+    })), canEdit && React.createElement("button", {
+      className: "btn btn-sm",
+      onClick: () => patch(c.id, { deathSaves: { ...ds, stabilized: true } })
+    }, "Stabilize")) : React.createElement("div", {
+      style: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }
+    }, canEdit && !statue && React.createElement("button", {
+      className: "ctr-btn-sm",
+      onClick: () => bumpHp(c, -1)
+    }, "\u2212"), React.createElement("div", {
+      className: "comp-hp-track",
+      style: statue ? { opacity: .6 } : undefined
+    }, React.createElement("div", {
+      className: "comp-hp-fill",
+      style: { width: `${pct * 100}%`, background: statue ? '#8b8b96' : pct > .5 ? '#7da864' : pct > .25 ? '#c9a84c' : '#C0504D' }
+    })), canEdit && !statue && React.createElement("button", {
+      className: "ctr-btn-sm",
+      onClick: () => bumpHp(c, 1)
+    }, "+"), React.createElement("span", {
+      style: { fontSize: 'var(--fs-xs)', whiteSpace: 'nowrap' }
+    }, hp, " / ", max, temp > 0 && React.createElement("span", {
+      style: { color: '#7fb3d6' }
+    }, " +", temp, " temp"))), statue && React.createElement("div", {
+      style: { fontSize: 'var(--fs-xs)', fontStyle: 'italic', color: 'var(--text-muted)', marginTop: 6 }
+    }, "Stored safely in figurine form \u2014 HP frozen; cannot act or be targeted."), !gone && React.createElement("div", {
+      className: "companion-chips",
+      style: { marginTop: 7 }
+    }, React.createElement("span", {
+      className: "comp-chip"
+    }, "AC ", c.ac || 10), speedText(c) && React.createElement("span", {
+      className: "comp-chip"
+    }, speedText(c)), t === 'drake' && c.energyType && c.energyType !== 'none' && React.createElement("span", {
+      className: "comp-chip",
+      style: { color: 'var(--accent)' }
+    }, "\u26a1 ", c.energyType, " \u00b7 ", c.infuseDie || '1d6'), living && canEdit && React.createElement("button", {
+      className: `sort-btn${statue ? ' active' : ''}`,
+      title: statue ? 'Release from figurine form' : 'Store in figurine form (Nate\u2019s safekeeping rule)',
+      onClick: () => patch(c.id, { statue: !statue })
+    }, "🗿 ", statue ? 'Release' : 'Statue')), c.notes && React.createElement("div", {
+      className: "companion-notes"
+    }, c.notes)));
+  };
+  const formField = (label, node) => React.createElement("div", {
+    className: "form-field"
+  }, React.createElement("label", null, label), node);
+  const setF = p => setEditing(f => ({ ...f, ...p }));
+  const editorModal = editing && React.createElement("div", {
+    className: "modal-bg",
+    onClick: () => setEditing(null)
+  }, React.createElement("div", {
+    className: "modal-box",
+    style: { maxWidth: 560 },
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    className: "modal-head"
+  }, React.createElement("span", {
+    className: "modal-title"
+  }, companions.some(c => c.id === editing.id) ? 'Edit Companion' : 'New Companion'), React.createElement("button", {
+    onClick: () => setEditing(null),
+    style: { background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }
+  }, "\u2715")), React.createElement("div", {
+    className: "comp-form-grid"
+  }, formField('Name', React.createElement("input", {
+    className: "form-sel",
+    value: editing.name || '',
+    onChange: e => setF({ name: e.target.value })
+  })), formField('Type', React.createElement("select", {
+    className: "form-sel",
+    value: compTypeId(editing),
+    onChange: e => setF({ type: e.target.value })
+  }, COMP_TYPE_OPTS.map(t => React.createElement("option", {
+    key: t.id,
+    value: t.id
+  }, t.label)))), compTypeId(editing) === 'familiar' && formField('Familiar Form', React.createElement("select", {
+    className: "form-sel",
+    value: editing.form || '',
+    onChange: e => {
+      const f = FAMILIAR_FORMS.find(x => x.id === e.target.value);
+      if (f) setF({ form: f.id, species: f.name, ac: f.ac, hpMax: f.hp, hp: f.hp, size: 'Tiny', speeds: { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 }, notes: editing.notes ? editing.notes : f.traits });
+      else setF({ form: '' });
+    }
+  }, React.createElement("option", { value: "" }, "Custom / none"), FAMILIAR_FORMS.map(f => React.createElement("option", {
+    key: f.id,
+    value: f.id
+  }, f.name)))), compTypeId(editing) !== 'familiar' && formField('Species / kind', React.createElement("input", {
+    className: "form-sel",
+    value: editing.species || '',
+    placeholder: "e.g. Chimera, Warhorse",
+    onChange: e => setF({ species: e.target.value })
+  })), formField('Image URL', React.createElement("input", {
+    className: "form-sel",
+    value: editing.imageUrl || '',
+    onChange: e => setF({ imageUrl: e.target.value })
+  })), formField('Size', React.createElement("input", {
+    className: "form-sel",
+    value: editing.size || '',
+    onChange: e => setF({ size: e.target.value })
+  })), formField('AC', React.createElement("input", {
+    className: "form-sel", type: "number",
+    value: editing.ac,
+    onChange: e => setF({ ac: parseInt(e.target.value) || 0 })
+  })), formField('Max HP', React.createElement("input", {
+    className: "form-sel", type: "number",
+    value: editing.hpMax,
+    onChange: e => setF({ hpMax: parseInt(e.target.value) || 0 })
+  })), formField('Current HP', React.createElement("input", {
+    className: "form-sel", type: "number", min: 0,
+    value: editing.hp,
+    onChange: e => setF({ hp: Math.max(0, parseInt(e.target.value) || 0) })
+  })), formField('Temp HP', React.createElement("input", {
+    className: "form-sel", type: "number", min: 0,
+    value: editing.hpTemp || 0,
+    onChange: e => setF({ hpTemp: Math.max(0, parseInt(e.target.value) || 0) })
+  })), compTypeId(editing) === 'drake' && formField('Essence', React.createElement("select", {
+    className: "form-sel",
+    value: editing.energyType || 'none',
+    onChange: e => setF({ energyType: e.target.value })
+  }, ['none', 'acid', 'cold', 'fire', 'lightning', 'poison'].map(o => React.createElement("option", {
+    key: o, value: o
+  }, o)))), compTypeId(editing) === 'drake' && formField('Infuse die', React.createElement("input", {
+    className: "form-sel",
+    value: editing.infuseDie || '1d6',
+    onChange: e => setF({ infuseDie: e.target.value })
+  })), ['walk', 'fly', 'swim', 'climb', 'burrow'].map(sp => formField(sp.charAt(0).toUpperCase() + sp.slice(1) + ' speed', React.createElement("input", {
+    key: sp,
+    className: "form-sel", type: "number",
+    value: editing.speeds && editing.speeds[sp] || 0,
+    onChange: e => setEditing(f => ({ ...f, speeds: { ...(f.speeds || {}), [sp]: parseInt(e.target.value) || 0 } }))
+  }))), ['str', 'dex', 'con', 'int', 'wis', 'cha'].map(ab => formField(ab.toUpperCase(), React.createElement("input", {
+    key: ab,
+    className: "form-sel", type: "number",
+    value: editing.abilityScores && editing.abilityScores[ab] || 10,
+    onChange: e => setEditing(f => ({ ...f, abilityScores: { ...(f.abilityScores || {}), [ab]: parseInt(e.target.value) || 10 } }))
+  })))), React.createElement("div", {
+    className: "form-field",
+    style: { marginTop: 8 }
+  }, React.createElement("label", null, "Notes"), React.createElement("textarea", {
+    className: "form-sel",
+    rows: 3,
+    value: editing.notes || '',
+    onChange: e => setF({ notes: e.target.value })
+  })), React.createElement("div", {
+    style: { display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }
+  }, companions.some(c => c.id === editing.id) && React.createElement("button", {
+    className: "btn",
+    style: { color: 'var(--danger)', borderColor: '#C0504D' },
+    onClick: () => del(editing.id)
+  }, "Delete"), companions.some(c => c.id === editing.id) && React.createElement("button", {
+    className: "btn btn-sm",
+    onClick: () => {
+      patch(editing.id, { archived: !editing.archived });
+      setEditing(null);
+    }
+  }, editing.archived ? 'Restore from Departed' : '🕯 Memorialize'), React.createElement("div", {
+    style: { flex: 1 }
+  }), React.createElement("button", {
+    className: "btn",
+    onClick: () => setEditing(null)
+  }, "Cancel"), React.createElement("button", {
+    className: "btn btn-gold",
+    onClick: () => save(editing)
+  }, "Save"))));
+  const resummonModal = resummonFor && React.createElement("div", {
+    className: "modal-bg",
+    onClick: () => setResummonFor(null)
+  }, React.createElement("div", {
+    className: "modal-box",
+    style: { maxWidth: 440 },
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    className: "modal-head"
+  }, React.createElement("span", {
+    className: "modal-title"
+  }, "Resummon ", resummonFor.name), React.createElement("button", {
+    onClick: () => setResummonFor(null),
+    style: { background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }
+  }, "\u2715")), React.createElement("div", {
+    style: { fontSize: 'var(--fs-xs)', fontStyle: 'italic', color: 'var(--text-muted)', marginBottom: 10 }
+  }, "1 hour ritual \u00b7 10 gp of incense. The spirit may take a new form."), React.createElement("button", {
+    className: "btn btn-sm btn-gold",
+    style: { marginBottom: 8 },
+    onClick: () => applyForm(resummonFor, null)
+  }, "Return in the same form"), React.createElement("div", {
+    style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, maxHeight: 300, overflowY: 'auto' }
+  }, FAMILIAR_FORMS.map(f => React.createElement("button", {
+    key: f.id,
+    className: "btn btn-sm",
+    style: { justifyContent: 'flex-start', textAlign: 'left' },
+    onClick: () => applyForm(resummonFor, f)
+  }, f.name)))));
+  return React.createElement("div", null, React.createElement("div", {
+    style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }
   }, React.createElement("span", {
     className: "section-label"
-  }, "Familiars, Mounts & Companions"), !editing && React.createElement("button", {
+  }, "Companions & Familiars"), canEdit && React.createElement("button", {
     className: "btn btn-gold btn-sm",
-    onClick: startAdd
-  }, "+ Add")), companions.length === 0 && !editing && React.createElement("p", {
-    style: {
-      color: 'var(--text-muted)',
-      fontStyle: 'italic',
-      fontSize: 'var(--fs-sm)'
-    }
-  }, "No companions yet. Add familiars, mounts, or animal companions above."), React.createElement("div", {
+    onClick: () => setEditing(defaultCompanion())
+  }, "+ Add")), roster.length === 0 && React.createElement("p", {
+    className: "comm-empty"
+  }, "No companions yet \u2014 every adventurer needs a friend."), React.createElement("div", {
     className: "companion-cards"
-  }, companions.map(c => React.createElement("div", {
-    className: "companion-card",
-    key: c.id
+  }, roster.map(renderCard)), departed.length > 0 && React.createElement("div", {
+    style: { marginTop: 14 }
+  }, React.createElement("button", {
+    className: "btn btn-sm",
+    style: { fontSize: 'var(--fs-xs)', opacity: .8 },
+    onClick: () => setShowDeparted(v => !v)
+  }, showDeparted ? '\u25b8' : '\u25b8', " 🕯 Departed (", departed.length, ")"), showDeparted && React.createElement("div", {
+    className: "companion-cards",
+    style: { marginTop: 8, opacity: .75 }
+  }, departed.map(c => React.createElement("div", {
+    key: c.id,
+    className: "companion-card"
   }, React.createElement("div", {
-    className: "companion-img"
-  }, c.imageUrl ? React.createElement("img", {
-    src: c.imageUrl,
-    alt: c.name
-  }) : '🐾'), React.createElement("div", {
     className: "companion-info"
   }, React.createElement("div", {
     className: "companion-name-row"
   }, React.createElement("span", {
     className: "companion-name"
-  }, c.name || 'Unnamed'), React.createElement("span", {
+  }, c.name), React.createElement("span", {
     className: "companion-type-badge"
-  }, c.size ? c.size + ' \u00b7 ' : '', c.type)), React.createElement("div", {
-    className: "companion-stat-grid"
-  }, ABILITY_KEYS.map((k, i) => {
-    const sc = parseInt(c.abilityScores[k]) || 10,
-      mod = getMod(sc);
-    return React.createElement("div", {
-      className: "comp-stat-cell",
-      key: k
-    }, React.createElement("span", {
-      className: "comp-stat-abbr"
-    }, ABILITY_ABBRS[i]), React.createElement("span", {
-      className: "comp-stat-val"
-    }, sc), React.createElement("span", {
-      className: "comp-stat-mod"
-    }, fmtMod(mod)));
-  })), React.createElement("div", {
-    className: "companion-chips"
-  }, React.createElement("div", {
-    className: "comp-chip"
-  }, React.createElement("span", {
-    className: "derived-lbl"
-  }, "HP"), React.createElement("span", {
-    className: "comp-chip-val",
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4
-    }
-  }, React.createElement("button", {
-    onClick: () => adjustHp(c.id, -1),
-    style: {
-      background: 'none',
-      border: '1px solid rgba(255,255,255,.3)',
-      color: 'inherit',
-      borderRadius: 4,
-      width: 15,
-      height: 15,
-      lineHeight: '11px',
-      cursor: 'pointer',
-      padding: 0,
-      fontSize: 'var(--fs-xs)'
-    }
-  }, "−"), c.hp, parseInt(c.hpMax) > 0 ? `/${c.hpMax}` : '', React.createElement("button", {
-    onClick: () => adjustHp(c.id, 1),
-    style: {
-      background: 'none',
-      border: '1px solid rgba(255,255,255,.3)',
-      color: 'inherit',
-      borderRadius: 4,
-      width: 15,
-      height: 15,
-      lineHeight: '11px',
-      cursor: 'pointer',
-      padding: 0,
-      fontSize: 'var(--fs-xs)'
-    }
-  }, "+"))), React.createElement("div", {
-    className: "comp-chip"
-  }, React.createElement("span", {
-    className: "derived-lbl"
-  }, "AC"), React.createElement("span", {
-    className: "comp-chip-val"
-  }, c.ac)), Object.entries(c.speeds || {}).filter(([, v]) => parseInt(v) > 0).map(([k, v]) => React.createElement("div", {
-    className: "comp-chip",
-    key: k
-  }, React.createElement("span", {
-    className: "derived-lbl"
-  }, k.charAt(0).toUpperCase() + k.slice(1)), React.createElement("span", {
-    className: "comp-chip-val"
-  }, v, "ft")))), c.energyType && c.energyType !== 'none' && React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 4,
-      marginTop: 5
-    }
-  }, React.createElement("span", {
-    className: "comp-chip",
-    style: {
-      borderColor: '#9B59B6'
-    }
-  }, React.createElement("span", {
-    className: "derived-lbl"
-  }, "Attuned"), React.createElement("span", {
-    className: "comp-chip-val"
-  }, c.energyType, " · immune")), c.infuseDie && React.createElement("span", {
-    className: "comp-chip"
-  }, React.createElement("span", {
-    className: "derived-lbl"
-  }, "Infuse"), React.createElement("span", {
-    className: "comp-chip-val"
-  }, "+", c.infuseDie, " ", c.energyType))), c.notes && React.createElement("div", {
+  }, (COMPANION_TYPES_LABEL(compTypeId(c)) + (c.species ? ' \u00b7 ' + c.species : '')).toUpperCase()), canEdit && React.createElement("button", {
+    className: "btn btn-icon",
+    style: { marginLeft: 'auto' },
+    onClick: () => setEditing({ ...c })
+  }, "\u2699")), c.notes && React.createElement("div", {
     className: "companion-notes"
-  }, c.notes), React.createElement("div", {
-    className: "companion-actions"
-  }, React.createElement("button", {
-    className: "btn btn-sm",
-    onClick: () => startEdit(c)
-  }, "✎ Edit"), React.createElement("button", {
-    className: "btn btn-sm btn-danger",
-    onClick: () => {
-      if (window.confirm(`Remove ${c.name || 'this companion'}?`)) deleteComp(c.id);
-    }
-  }, "🗑")))))), editing && React.createElement("div", {
-    className: "companion-form"
-  }, React.createElement("div", {
-    className: "form-sec-title"
-  }, React.createElement("span", null, editing.id && companions.find(c => c.id === editing.id) ? 'Edit Companion' : 'New Companion')), React.createElement("div", {
-    className: "comp-form-grid"
-  }, React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Name"), React.createElement("input", {
-    className: "form-inp",
-    value: editing.name,
-    onChange: e => setF({
-      name: e.target.value
-    })
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Type"), React.createElement("select", {
-    className: "form-sel",
-    value: editing.type,
-    onChange: e => setF({
-      type: e.target.value
-    })
-  }, COMPANION_TYPES.map(t => React.createElement("option", {
-    key: t
-  }, t)))), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Size"), React.createElement("select", {
-    className: "form-sel",
-    value: editing.size || 'Medium',
-    onChange: e => setF({
-      size: e.target.value
-    })
-  }, CREATURE_SIZES.map(s => React.createElement("option", {
-    key: s
-  }, s)))), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Image URL"), React.createElement("input", {
-    className: "form-inp",
-    placeholder: "https://...",
-    value: editing.imageUrl,
-    onChange: e => setF({
-      imageUrl: e.target.value
-    })
-  }))), React.createElement("div", null, React.createElement("div", {
-    className: "form-lbl",
-    style: {
-      marginBottom: 6
-    }
-  }, "Ability Scores"), React.createElement("div", {
-    className: "comp-ability-grid"
-  }, ABILITY_KEYS.map((k, i) => React.createElement("div", {
-    className: "comp-ability-cell",
-    key: k
-  }, React.createElement("span", {
-    className: "form-lbl"
-  }, ABILITY_ABBRS[i]), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "1",
-    max: "30",
-    value: editing.abilityScores[k],
-    onChange: e => setAs(k, e.target.value),
-    style: {
-      textAlign: 'center',
-      width: 56
-    }
-  }), React.createElement("span", {
-    style: {
-      fontSize: 'var(--fs-xs)',
-      color: 'var(--accent)'
-    }
-  }, fmtMod(getMod(editing.abilityScores[k]))))))), React.createElement("div", {
-    className: "comp-form-grid-wide",
-    style: {
-      marginTop: 12
-    }
-  }, React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "HP (current)"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: editing.hp,
-    onChange: e => setF({
-      hp: parseInt(e.target.value) || 0
-    })
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Max HP"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: editing.hpMax || 0,
-    onChange: e => setF({
-      hpMax: parseInt(e.target.value) || 0
-    })
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "AC"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    value: editing.ac,
-    onChange: e => setF({
-      ac: parseInt(e.target.value) || 10
-    })
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Walk (ft)"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: (editing.speeds || {}).walk || 0,
-    onChange: e => setSp('walk', e.target.value)
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Fly (ft)"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: (editing.speeds || {}).fly || 0,
-    onChange: e => setSp('fly', e.target.value)
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Swim (ft)"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: (editing.speeds || {}).swim || 0,
-    onChange: e => setSp('swim', e.target.value)
-  })), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Climb (ft)"), React.createElement("input", {
-    className: "form-inp",
-    type: "number",
-    min: "0",
-    value: (editing.speeds || {}).climb || 0,
-    onChange: e => setSp('climb', e.target.value)
-  }))), React.createElement("div", {
-    className: "comp-form-grid",
-    style: {
-      marginTop: 8
-    }
-  }, React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Energy Attunement (immune to)"), React.createElement("select", {
-    className: "form-sel",
-    value: editing.energyType || 'none',
-    onChange: e => setF({
-      energyType: e.target.value
-    })
-  }, ENERGY_TYPES.map(t => React.createElement("option", {
-    key: t,
-    value: t
-  }, t === 'none' ? 'None' : t)))), React.createElement("div", {
-    className: "form-field"
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Infused Strike Die"), React.createElement("input", {
-    className: "form-inp",
-    placeholder: "e.g. 1d6",
-    value: editing.infuseDie || '',
-    onChange: e => setF({
-      infuseDie: e.target.value
-    })
-  }))), React.createElement("div", {
-    className: "form-field",
-    style: {
-      marginTop: 8
-    }
-  }, React.createElement("label", {
-    className: "form-lbl"
-  }, "Notes / Abilities"), React.createElement("textarea", {
-    className: "form-inp",
-    rows: 2,
-    value: editing.notes,
-    onChange: e => setF({
-      notes: e.target.value
-    }),
-    style: {
-      resize: 'vertical',
-      fontFamily: 'var(--body)',
-      fontSize: 'var(--fs-sm)'
-    }
-  })), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 9,
-      justifyContent: 'flex-end',
-      marginTop: 12
-    }
-  }, React.createElement("button", {
-    className: "btn",
-    onClick: cancelEdit
-  }, "Cancel"), React.createElement("button", {
-    className: "btn btn-gold",
-    onClick: saveComp
-  }, "Save Companion"))));
+  }, c.notes)))))), editorModal, resummonModal);
 }
-const TIMELINE_TYPES = [{
-  id: 'birth',
-  label: 'Birth',
-  color: 'var(--success)'
-}, {
-  id: 'death',
-  label: 'Death',
-  color: 'var(--danger)'
-}, {
-  id: 'meeting',
-  label: 'Meeting',
-  color: '#3B82C4'
-}, {
-  id: 'battle',
-  label: 'Battle',
-  color: 'var(--warn-on-dark)'
-}, {
-  id: 'milestone',
-  label: 'Milestone',
-  color: '#C8962E'
-}, {
-  id: 'other',
-  label: 'Other',
-  color: '#8E7CC3'
-}];
-const defaultTimelineEvent = () => ({
-  id: uid(),
-  date: null,
-  type: 'milestone',
-  title: '',
-  description: ''
-});
+function COMPANION_TYPES_LABEL(t) {
+  const o = COMP_TYPE_OPTS.find(x => x.id === t);
+  return o ? o.label.replace(' / Pet', '') : 'Companion';
+}
 function TimelineEventModal({
   event,
   isNew,
@@ -44379,6 +44393,7 @@ function InventoryTab({
   const [containerExit, setContainerExit] = useState(null);
   const [catFilter, setCatFilter] = useState('all');
   const [openContainers, setOpenContainers] = useState({});
+  const [showCarried, setShowCarried] = useState(true);
   const [lendItem, setLendItem] = useState(null);
   const [showLentOut, setShowLentOut] = useState(false);
   const [giftItem, setGiftItem] = useState(null);
@@ -44898,12 +44913,16 @@ function InventoryTab({
     onReturn: () => returnUnit(item.id, char.id),
     onGift: () => setGiftItem(item),
     characters: characters
-  })))))), React.createElement("div", {
-    className: "inv-cat-hdr",
+  })))))), React.createElement("button", {
+    className: "btn btn-sm",
     style: {
-      marginTop: 4
-    }
-  }, React.createElement("span", null, "🎒 Carried (", carriedItems.length, ")")), carriedItems.length >= 5 && React.createElement("div", {
+      fontSize: 'var(--fs-xs)',
+      opacity: .9,
+      marginTop: 4,
+      alignSelf: 'flex-start'
+    },
+    onClick: () => setShowCarried(v => !v)
+  }, showCarried ? '▲' : '▼', " 🎒 Carried (", carriedItems.length, ")"), showCarried && React.createElement(React.Fragment, null, carriedItems.length >= 5 && React.createElement("div", {
     className: "inv-attu-row",
     style: {
       marginBottom: 6
@@ -44955,7 +44974,7 @@ function InventoryTab({
       fontStyle: 'italic',
       fontSize: 'var(--fs-md)'
     }
-  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.')), containers.map(ct => {
+  }, active.length === 0 ? 'No items yet — click + Add Item to begin.' : 'No items in this location.'))), containers.map(ct => {
     const ctItems = active.filter(i => i.storedIn === ct.id);
     const cpct = ct.capacity > 0 ? Math.min(1, ct.load / ct.capacity) : 0;
     const cover = ct.capacity > 0 && ct.load > ct.capacity;
@@ -51169,7 +51188,8 @@ function CharacterPage({
     inGameDate: inGameDate
   }), ribbonTab === 'companions' && React.createElement(CompanionsTab, {
     char: char,
-    onUpdate: onUpdate
+    onUpdate: onUpdate,
+    canEdit: canEdit
   }), ribbonTab === 'comms' && React.createElement(CommsTab, {
     canEdit: canEdit,
     char: char,
