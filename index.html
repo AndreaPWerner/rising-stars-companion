@@ -28717,26 +28717,43 @@ const COMP_LIVING = t => t === 'beast' || t === 'mount' || t === 'npc';
 const COMP_ZERO_STATUS = t => t === 'familiar' ? 'dispelled' : t === 'drake' ? 'vanished' : t === 'construct' ? 'destroyed' : null;
 const COMP_STATUS_LABEL = { dispelled: 'Dispelled', vanished: 'Vanished', destroyed: 'Destroyed', dead: 'Dead' };
 const FAMILIAR_FORMS = [
-  { id: 'bat', name: 'Bat', ac: 12, hp: 1, speeds: { walk: 5, fly: 30 }, traits: 'Blindsight 60 ft. Echolocation; Keen Hearing.' },
-  { id: 'cat', name: 'Cat', ac: 12, hp: 2, speeds: { walk: 40, climb: 30 }, traits: 'Keen Smell.' },
-  { id: 'crab', name: 'Crab', ac: 11, hp: 2, speeds: { walk: 20, swim: 20 }, traits: 'Blindsight 30 ft. Amphibious.' },
-  { id: 'frog', name: 'Frog', ac: 11, hp: 1, speeds: { walk: 20, swim: 20 }, traits: 'Darkvision 30 ft. Amphibious; Standing Leap.' },
-  { id: 'hawk', name: 'Hawk', ac: 13, hp: 1, speeds: { walk: 10, fly: 60 }, traits: 'Keen Sight.' },
-  { id: 'lizard', name: 'Lizard', ac: 10, hp: 2, speeds: { walk: 20, climb: 20 }, traits: 'Darkvision 30 ft.' },
-  { id: 'octopus', name: 'Octopus', ac: 12, hp: 3, speeds: { walk: 5, swim: 30 }, traits: 'Darkvision 30 ft. Hold Breath; Ink Cloud; Underwater Camouflage.' },
-  { id: 'owl', name: 'Owl', ac: 11, hp: 1, speeds: { walk: 5, fly: 60 }, traits: 'Darkvision 120 ft. Flyby; Keen Hearing and Sight.' },
-  { id: 'snake', name: 'Poisonous Snake', ac: 13, hp: 2, speeds: { walk: 30, swim: 30 }, traits: 'Blindsight 10 ft.' },
-  { id: 'quipper', name: 'Quipper', ac: 13, hp: 1, speeds: { swim: 40 }, traits: 'Darkvision 60 ft. Blood Frenzy; Water Breathing.' },
-  { id: 'rat', name: 'Rat', ac: 10, hp: 1, speeds: { walk: 20 }, traits: 'Darkvision 30 ft. Keen Smell.' },
-  { id: 'raven', name: 'Raven', ac: 12, hp: 1, speeds: { walk: 10, fly: 50 }, traits: 'Mimicry.' },
-  { id: 'seahorse', name: 'Sea Horse', ac: 11, hp: 1, speeds: { swim: 20 }, traits: 'Water Breathing.' },
-  { id: 'spider', name: 'Spider', ac: 12, hp: 1, speeds: { walk: 20, climb: 20 }, traits: 'Darkvision 30 ft. Spider Climb; Web Sense; Web Walker.' },
-  { id: 'weasel', name: 'Weasel', ac: 13, hp: 1, speeds: { walk: 30 }, traits: 'Keen Hearing and Smell.' },
-  { id: 'imp', name: 'Imp (chain)', ac: 13, hp: 10, speeds: { walk: 20, fly: 40 }, traits: 'Darkvision 120 ft. Shapechanger; Devil\u2019s Sight; Magic Resistance; Invisibility.' },
-  { id: 'pseudodragon', name: 'Pseudodragon (chain)', ac: 13, hp: 7, speeds: { walk: 15, fly: 60 }, traits: 'Blindsight 10 ft., Darkvision 60 ft. Keen Senses; Magic Resistance; Limited Telepathy.' },
-  { id: 'quasit', name: 'Quasit (chain)', ac: 13, hp: 7, speeds: { walk: 40 }, traits: 'Darkvision 120 ft. Shapechanger; Magic Resistance; Invisibility; Scare.' },
-  { id: 'sprite', name: 'Sprite (chain)', ac: 15, hp: 2, speeds: { walk: 10, fly: 40 }, traits: 'Invisibility; Heart Sight; Longbow \u0026 Shortsword.' }
+  { id: 'bat', name: 'Bat', size: 'Tiny', ac: 12, hp: 1, ab: [2, 15, 8, 2, 12, 4], speeds: { walk: 5, fly: 30 }, attacks: 'Bite +0 (1 piercing)', skills: '', traits: 'Blindsight 60 ft. Echolocation: no blindsight while deafened. Keen Hearing: advantage on Perception checks using hearing.' },
+  { id: 'cat', name: 'Cat', size: 'Tiny', ac: 12, hp: 2, ab: [3, 15, 10, 3, 12, 7], speeds: { walk: 40, climb: 30 }, attacks: 'Claws +0 (1 slashing)', skills: 'Perception +3, Stealth +4', traits: 'Keen Smell: advantage on Perception checks using smell.' },
+  { id: 'crab', name: 'Crab', size: 'Tiny', ac: 11, hp: 2, ab: [2, 11, 10, 1, 8, 2], speeds: { walk: 20, swim: 20 }, attacks: 'Claw +0 (1 bludgeoning)', skills: 'Stealth +2', traits: 'Blindsight 30 ft. Amphibious: breathes air and water.' },
+  { id: 'frog', name: 'Frog', size: 'Tiny', ac: 11, hp: 1, ab: [1, 13, 8, 1, 8, 3], speeds: { walk: 20, swim: 20 }, attacks: '', skills: 'Perception +1, Stealth +3', traits: 'Darkvision 30 ft. Amphibious. Standing Leap: long jump 10 ft, high jump 5 ft without a running start.' },
+  { id: 'hawk', name: 'Hawk', size: 'Tiny', ac: 13, hp: 1, ab: [5, 16, 8, 2, 14, 6], speeds: { walk: 10, fly: 60 }, attacks: 'Talons +5 (1 slashing)', skills: 'Perception +4', traits: 'Keen Sight: advantage on Perception checks using sight.' },
+  { id: 'lizard', name: 'Lizard', size: 'Tiny', ac: 10, hp: 2, ab: [2, 11, 10, 1, 8, 3], speeds: { walk: 20, climb: 20 }, attacks: 'Bite +0 (1 piercing)', skills: '', traits: 'Darkvision 30 ft.' },
+  { id: 'octopus', name: 'Octopus', size: 'Small', ac: 12, hp: 3, ab: [4, 15, 11, 3, 10, 4], speeds: { walk: 5, swim: 30 }, attacks: 'Tentacles +4 (1 bludgeoning, grapple DC 10)', skills: 'Perception +2, Stealth +4', traits: 'Darkvision 30 ft. Hold Breath: 1 hour out of water. Ink Cloud (1/day). Underwater Camouflage: advantage on Stealth underwater.' },
+  { id: 'owl', name: 'Owl', size: 'Tiny', ac: 11, hp: 1, ab: [3, 13, 8, 2, 12, 7], speeds: { walk: 5, fly: 60 }, attacks: 'Talons +3 (1 slashing)', skills: 'Perception +3, Stealth +3', traits: 'Darkvision 120 ft. Flyby: provokes no opportunity attacks when flying out of reach. Keen Hearing and Sight: advantage on Perception checks using hearing or sight.' },
+  { id: 'snake', name: 'Poisonous Snake', size: 'Tiny', ac: 13, hp: 2, ab: [2, 16, 11, 1, 10, 3], speeds: { walk: 30, swim: 30 }, attacks: 'Bite +5 (1 piercing + DC 10 Con save, 2d4 poison, half on success)', skills: '', traits: 'Blindsight 10 ft.' },
+  { id: 'quipper', name: 'Quipper', size: 'Tiny', ac: 13, hp: 1, ab: [2, 16, 9, 1, 7, 2], speeds: { swim: 40 }, attacks: 'Bite +5 (1 piercing)', skills: '', traits: 'Darkvision 60 ft. Blood Frenzy: advantage on attacks vs creatures missing HP. Water Breathing.' },
+  { id: 'rat', name: 'Rat', size: 'Tiny', ac: 10, hp: 1, ab: [2, 11, 9, 2, 10, 4], speeds: { walk: 20 }, attacks: 'Bite +0 (1 piercing)', skills: '', traits: 'Darkvision 30 ft. Keen Smell: advantage on Perception checks using smell.' },
+  { id: 'raven', name: 'Raven', size: 'Tiny', ac: 12, hp: 1, ab: [2, 14, 8, 2, 12, 6], speeds: { walk: 10, fly: 50 }, attacks: 'Beak +4 (1 piercing)', skills: 'Perception +3', traits: 'Mimicry: can mimic sounds it has heard (DC 10 Insight to discern).' },
+  { id: 'seahorse', name: 'Sea Horse', size: 'Tiny', ac: 11, hp: 1, ab: [1, 12, 8, 1, 10, 2], speeds: { swim: 20 }, attacks: '', skills: '', traits: 'Water Breathing.' },
+  { id: 'spider', name: 'Spider', size: 'Tiny', ac: 12, hp: 1, ab: [2, 14, 8, 1, 10, 2], speeds: { walk: 20, climb: 20 }, attacks: 'Bite +4 (1 piercing + DC 9 Con save, 1d4 poison)', skills: 'Stealth +4', traits: 'Darkvision 30 ft. Spider Climb. Web Sense. Web Walker: ignores webs.' },
+  { id: 'weasel', name: 'Weasel', size: 'Tiny', ac: 13, hp: 1, ab: [3, 16, 8, 2, 12, 3], speeds: { walk: 30 }, attacks: 'Bite +5 (1 piercing)', skills: 'Perception +3, Stealth +5', traits: 'Keen Hearing and Smell: advantage on Perception checks using hearing or smell.' },
+  { id: 'imp', name: 'Imp (chain)', size: 'Tiny', ac: 13, hp: 10, ab: [6, 17, 13, 11, 12, 14], speeds: { walk: 20, fly: 40 }, attacks: 'Sting +5 (1d4+3 piercing + DC 11 Con save, 3d6 poison, half on success)', skills: 'Deception +4, Insight +3, Persuasion +4, Stealth +5', traits: 'Darkvision 120 ft. Shapechanger. Devil\u2019s Sight: magical darkness doesn\u2019t impede. Magic Resistance: advantage on saves vs spells. Invisibility (at will).' },
+  { id: 'pseudodragon', name: 'Pseudodragon (chain)', size: 'Tiny', ac: 13, hp: 7, ab: [6, 15, 13, 10, 12, 10], speeds: { walk: 15, fly: 60 }, attacks: 'Bite +4 (1d4+2 piercing); Sting +4 (1d4+2 + DC 11 Con save or poisoned 1 h; fail by 5+ = unconscious)', skills: 'Perception +3, Stealth +4', traits: 'Blindsight 10 ft., Darkvision 60 ft. Keen Senses: advantage on Perception using sight, hearing, or smell. Magic Resistance. Limited Telepathy.' },
+  { id: 'quasit', name: 'Quasit (chain)', size: 'Tiny', ac: 13, hp: 7, ab: [5, 17, 10, 7, 10, 10], speeds: { walk: 40 }, attacks: 'Claws +4 (1d4+3 slashing + DC 10 Con save, 2d4 poison)', skills: 'Stealth +5', traits: 'Darkvision 120 ft. Shapechanger. Magic Resistance. Invisibility (at will). Scare (1/day): DC 10 Wis or frightened 1 min.' },
+  { id: 'sprite', name: 'Sprite (chain)', size: 'Tiny', ac: 15, hp: 2, ab: [3, 18, 10, 14, 13, 11], speeds: { walk: 10, fly: 40 }, attacks: 'Longsword +2 (1 slashing); Shortbow +6 (1 piercing + DC 10 Con save or poisoned 1 min; fail by 5+ = unconscious)', skills: 'Perception +3, Stealth +8', traits: 'Invisibility (at will). Heart Sight: touch reveals emotional state and alignment.' }
 ];
+const MOUNT_FORMS = [
+  { id: 'destrier', name: 'Destrier (warhorse)', size: 'Large', ac: 11, hp: 19, ab: [18, 12, 13, 2, 12, 7], speeds: { walk: 60 }, attacks: 'Hooves +6 (2d6+4 bludgeoning)', skills: '', traits: 'Trampling Charge: after moving 20+ ft straight and hitting with hooves, DC 14 Str save or target is knocked prone; bonus-action hooves attack against it.' },
+  { id: 'draft', name: 'Draft horse', size: 'Large', ac: 10, hp: 19, ab: [18, 10, 12, 2, 11, 7], speeds: { walk: 40 }, attacks: 'Hooves +6 (2d4+4 bludgeoning)', skills: '', traits: '' },
+  { id: 'rouncey', name: 'Rouncey (riding horse)', size: 'Large', ac: 10, hp: 13, ab: [16, 10, 12, 2, 11, 7], speeds: { walk: 60 }, attacks: 'Hooves +5 (2d4+3 bludgeoning)', skills: '', traits: '' }
+];
+function compFormNotes(f) {
+  return [f.traits, f.attacks ? 'Attacks: ' + f.attacks : '', f.skills ? 'Skills: ' + f.skills : ''].filter(Boolean).join('\n');
+}
+function compApplyFormPatch(f) {
+  const ab = f.ab || [10, 10, 10, 10, 10, 10];
+  return {
+    species: f.name, ac: f.ac, hpMax: f.hp, hp: f.hp, hpTemp: 0, size: f.size || 'Tiny',
+    abilityScores: { str: ab[0], dex: ab[1], con: ab[2], int: ab[3], wis: ab[4], cha: ab[5] },
+    speeds: { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 },
+    notes: compFormNotes(f)
+  };
+}
 function hexToRgba(hex, a) {
   try {
     const h = (hex || '#000000').replace('#', '');
@@ -31299,11 +31316,16 @@ function CompanionsTab({
     else patch(c.id, { status: 'active', hp: parseInt(c.hpMax) || 0, hpTemp: 0, deathSaves: null });
   };
   const applyForm = (c, f) => {
-    patch(c.id, {
-      status: 'active', form: f ? f.id : c.form, species: f ? f.name : c.species,
-      ac: f ? f.ac : c.ac, hpMax: f ? f.hp : c.hpMax, hp: f ? f.hp : parseInt(c.hpMax) || 0, hpTemp: 0, deathSaves: null,
-      size: f ? 'Tiny' : c.size,
-      speeds: f ? { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 } : c.speeds
+    patch(c.id, f ? {
+      ...compApplyFormPatch(f),
+      form: f.id,
+      status: 'active',
+      deathSaves: null
+    } : {
+      status: 'active',
+      hp: parseInt(c.hpMax) || 0,
+      hpTemp: 0,
+      deathSaves: null
     });
     setResummonFor(null);
   };
@@ -31425,7 +31447,7 @@ function CompanionsTab({
     className: "form-field"
   }, React.createElement("label", null, label), node);
   const setF = p => setEditing(f => ({ ...f, ...p }));
-  const editorModal = editing && React.createElement("div", {
+  const editorModal = editing && ReactDOM.createPortal(React.createElement("div", {
     className: "modal-bg",
     onClick: () => setEditing(null)
   }, React.createElement("div", {
@@ -31457,10 +31479,20 @@ function CompanionsTab({
     value: editing.form || '',
     onChange: e => {
       const f = FAMILIAR_FORMS.find(x => x.id === e.target.value);
-      if (f) setF({ form: f.id, species: f.name, ac: f.ac, hpMax: f.hp, hp: f.hp, size: 'Tiny', speeds: { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 }, notes: editing.notes ? editing.notes : f.traits });
+      if (f) setF({ ...compApplyFormPatch(f), form: f.id });
       else setF({ form: '' });
     }
   }, React.createElement("option", { value: "" }, "Custom / none"), FAMILIAR_FORMS.map(f => React.createElement("option", {
+    key: f.id,
+    value: f.id
+  }, f.name)))), compTypeId(editing) === 'mount' && formField('Breed', React.createElement("select", {
+    className: "form-sel",
+    value: '',
+    onChange: e => {
+      const f = MOUNT_FORMS.find(x => x.id === e.target.value);
+      if (f) setF(compApplyFormPatch(f));
+    }
+  }, React.createElement("option", { value: "" }, "Apply breed stats\u2026"), MOUNT_FORMS.map(f => React.createElement("option", {
     key: f.id,
     value: f.id
   }, f.name)))), compTypeId(editing) !== 'familiar' && formField('Species / kind', React.createElement("input", {
@@ -31472,11 +31504,14 @@ function CompanionsTab({
     className: "form-sel",
     value: editing.imageUrl || '',
     onChange: e => setF({ imageUrl: e.target.value })
-  })), formField('Size', React.createElement("input", {
+  })), formField('Size', React.createElement("select", {
     className: "form-sel",
-    value: editing.size || '',
+    value: editing.size || 'Medium',
     onChange: e => setF({ size: e.target.value })
-  })), formField('AC', React.createElement("input", {
+  }, SIZE_CLASSES.map(z => React.createElement("option", {
+    key: z,
+    value: z
+  }, z)))), formField('AC', React.createElement("input", {
     className: "form-sel", type: "number",
     value: editing.ac,
     onChange: e => setF({ ac: parseInt(e.target.value) || 0 })
@@ -31540,8 +31575,8 @@ function CompanionsTab({
   }, "Cancel"), React.createElement("button", {
     className: "btn btn-gold",
     onClick: () => save(editing)
-  }, "Save"))));
-  const resummonModal = resummonFor && React.createElement("div", {
+  }, "Save")))), document.body);
+  const resummonModal = resummonFor && ReactDOM.createPortal(React.createElement("div", {
     className: "modal-bg",
     onClick: () => setResummonFor(null)
   }, React.createElement("div", {
@@ -31568,7 +31603,7 @@ function CompanionsTab({
     className: "btn btn-sm",
     style: { justifyContent: 'flex-start', textAlign: 'left' },
     onClick: () => applyForm(resummonFor, f)
-  }, f.name)))));
+  }, f.name))))), document.body);
   return React.createElement("div", null, React.createElement("div", {
     style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }
   }, React.createElement("span", {
