@@ -334,7 +334,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       --surface:rgba(255,250,230,0.82); --surface2:rgba(240,226,188,0.92);
       --border:rgba(139,105,20,0.28);
       --text:#2C1810; --text-muted:#4A2408;
-      --accent:#8B6914;--scroll-track:rgba(120,95,40,.1);--scroll-thumb:rgba(150,110,35,.45); --accent2:#C4962A; --magic:#6A3CB5; --temp-hp:#E6A817;
+      --accent:#8B6914;--scroll-track:rgba(120,95,40,.1);--scroll-thumb:rgba(150,110,35,.45);--mcm-bar:rgba(244,236,218,.85);--mcm-bar2:rgba(238,228,205,.75);--mcm-btn-bg:rgba(120,95,40,.08);--mcm-btn-border:var(--border);--mcm-btn-hover:rgba(120,95,40,.16);--mcm-text:var(--text);--mcm-text-subtle:var(--text-muted); --accent2:#C4962A; --magic:#6A3CB5; --temp-hp:#E6A817;
       --heading:'Cinzel',serif; --body:'Lora',serif;
       --radius:6px; --shadow:0 2px 18px rgba(44,24,16,0.13);
       --shadow-lg:0 8px 48px rgba(44,24,16,0.22); --tr:0.4s ease;
@@ -353,7 +353,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       --bg:#19150F; --bg2:#131009;
       --surface:rgba(30,25,16,0.90); --surface2:rgba(24,20,12,0.94);
       --border:rgba(210,168,50,0.20); --text:#F0C84A; --text-muted:#C8981C;
-      --accent:#F0C84A;--scroll-track:rgba(0,0,0,.28);--scroll-thumb:rgba(196,150,42,.5); --accent2:#FFD54F; --magic:#B79BE8; --temp-hp:#FFCB3D;
+      --accent:#F0C84A;--scroll-track:rgba(0,0,0,.28);--scroll-thumb:rgba(196,150,42,.5);--mcm-bar:rgba(0,0,0,.5);--mcm-bar2:rgba(0,0,0,.38);--mcm-btn-bg:rgba(255,255,255,.1);--mcm-btn-border:rgba(255,255,255,.18);--mcm-btn-hover:rgba(255,255,255,.2);--mcm-text:var(--text-on-dark);--mcm-text-subtle:var(--text-subtle-on-dark); --accent2:#FFD54F; --magic:#B79BE8; --temp-hp:#FFCB3D;
       --shadow:0 2px 18px rgba(0,0,0,0.55); --shadow-lg:0 8px 48px rgba(0,0,0,0.65);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1141,12 +1141,12 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .magic-bg{position:absolute;top:var(--hdr-h,38px);left:0;right:0;bottom:0;background-size:cover;background-position:var(--bg-pos,center center);z-index:0;}
     .magic-bg-scrim{position:absolute;top:var(--hdr-h,38px);left:0;right:0;bottom:0;background:rgba(0,0,0,.22);z-index:1;}
     .magic-parchment{position:absolute;top:calc(var(--hdr-h,38px) + var(--sub-h,34px));left:0;right:0;bottom:0;background-size:var(--tex-size,100% 100%);background-position:var(--tex-pos,center center);background-repeat:no-repeat;z-index:2;opacity:1;}
-    .magic-header{display:flex;align-items:center;justify-content:flex-start;gap:6px;padding:5px 9px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);flex-wrap:wrap;}
+    .magic-header{display:flex;align-items:center;justify-content:flex-start;gap:6px;padding:5px 9px;background:var(--mcm-bar);backdrop-filter:blur(6px);flex-wrap:wrap;}
     .magic-topbar{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;flex-direction:column;}
-    .magic-subbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:4px 9px 5px;background:rgba(0,0,0,.38);backdrop-filter:blur(6px);}
-    .magic-header-title{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-x-wide);text-transform:uppercase;color:var(--text-on-dark);white-space:nowrap;flex-shrink:0;}
-    .magic-header-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:var(--text-on-dark);font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-tight);padding:3px 8px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-    .magic-header-btn:hover{background:rgba(255,255,255,.2);}
+    .magic-subbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:4px 9px 5px;background:var(--mcm-bar2);backdrop-filter:blur(6px);}
+    .magic-header-title{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-x-wide);text-transform:uppercase;color:var(--mcm-text);white-space:nowrap;flex-shrink:0;}
+    .magic-header-btn{background:var(--mcm-btn-bg);border:1px solid var(--mcm-btn-border);border-radius:4px;color:var(--mcm-text);font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-tight);padding:3px 8px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+    .magic-header-btn:hover{background:var(--mcm-btn-hover);}
     .magic-header-btn.focus-on{border-color:rgba(255,215,0,.65);color:rgba(255,215,0,.95);box-shadow:0 0 9px rgba(255,215,0,.5);text-shadow:0 0 5px rgba(255,215,0,.45);}
     .magic-header-btn.rest-glow{border-color:rgba(125,205,255,.6);color:rgba(170,215,255,.95);box-shadow:0 0 9px rgba(125,205,255,.5);text-shadow:0 0 5px rgba(125,205,255,.4);}
     .rest-count{font-size:.82em;opacity:.7;font-weight:normal;}
@@ -1154,11 +1154,11 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .magic-gear-btn:hover{color:#fff;background:rgba(0,0,0,.82);border-color:var(--text-subtle-on-dark);}
     .magic-gear-btn.panel-on{color:#fff;background:rgba(255,255,255,.2);border-color:var(--text-subtle-on-dark);}
     .magic-header-btn.ar-on{border-color:rgba(180,120,255,.7);color:rgba(180,120,255,.95);}
-    .magic-header-btn.panel-on{background:rgba(255,255,255,.2);border-color:var(--text-subtle-on-dark);}
+    .magic-header-btn.panel-on{background:var(--mcm-btn-hover);border-color:var(--mcm-text-subtle);}
     .slot-rows-v2-horiz{display:flex;flex-wrap:wrap;gap:3px 7px;align-items:center;}
-    .magic-search-mini{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:3px 7px;outline:none;width:88px;flex-shrink:0;}
-    .magic-search-mini::placeholder{color:var(--text-subtle-on-dark);}
-    .magic-sel-mini{background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:3px 4px;outline:none;flex-shrink:0;max-width:72px;}
+    .magic-search-mini{background:var(--mcm-btn-bg);border:1px solid var(--mcm-btn-border);border-radius:4px;color:var(--mcm-text);font-size:var(--fs-xs);padding:3px 7px;outline:none;width:88px;flex-shrink:0;}
+    .magic-search-mini::placeholder{color:var(--mcm-text-subtle);}
+    .magic-sel-mini{background:var(--mcm-bar2);border:1px solid var(--mcm-btn-border);border-radius:4px;color:var(--mcm-text);font-size:var(--fs-xs);padding:3px 4px;outline:none;flex-shrink:0;max-width:72px;}
     /* Spellbook column = fixed header + its own scrollable body (header never scrolls). */
     .magic-col{position:absolute;z-index:4;margin-top:var(--sub-h);display:flex;flex-direction:column;overflow:hidden;}
     .spell-col-head{flex:0 0 auto;padding:2px 6px 0;}
@@ -1177,6 +1177,15 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .bg-ro select{display:none!important;}
     .bg-ro input:placeholder-shown{display:none;}
     .bg-ro input,.bg-ro textarea{pointer-events:none;}
+    .ft-ro .prof-chip-x{display:none!important;}
+    .ft-ro .prof-bottom-cats select{display:none!important;}
+    .ft-ro .prof-bottom-cats input:placeholder-shown{display:none;}
+    .ft-ro .prof-bottom-cats input{pointer-events:none;}
+    .bg-plain-text{white-space:pre-wrap;font-size:var(--fs-sm);line-height:1.55;padding:2px 0;}
+    .prof-read{display:flex;flex-direction:column;gap:4px;margin-top:2px;}
+    .prof-read-line{display:flex;gap:10px;align-items:baseline;}
+    .prof-read-lbl{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-muted);min-width:92px;flex-shrink:0;}
+    .prof-read-names{font-size:var(--fs-sm);line-height:1.5;}
     .spark-p{position:fixed;pointer-events:none;z-index:12000;color:var(--accent);font-size:10px;line-height:1;opacity:.5;transform:translate(-50%,-50%) rotate(var(--rot,0deg));animation:sparkFade .85s ease-out forwards;text-shadow:0 0 6px rgba(255,220,140,.75);}
     .spark-strong{font-size:15px;opacity:.95;text-shadow:0 0 10px rgba(255,220,140,.95);}
     @keyframes sparkFade{0%{opacity:.65;}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.25);}}
@@ -49445,7 +49454,7 @@ function BackgroundPanel({
     className: "form-field"
   }, React.createElement("label", {
     className: "form-lbl"
-  }, "Specialty / Subfield"), React.createElement("input", {
+  }, "Specialty / Subfield"), (canEdit ? React.createElement("input", {
     className: "form-inp",
     list: "bg-spec-panel",
     value: bd.specialty || '',
@@ -49453,7 +49462,9 @@ function BackgroundPanel({
       specialty: e.target.value
     }),
     placeholder: "e.g. Astronomer"
-  }), React.createElement("datalist", {
+  }) : React.createElement("div", {
+    className: "bg-plain-text"
+  }, bd.specialty || '\u2014')), React.createElement("datalist", {
     id: "bg-spec-panel"
   }, ((resolveBackground(char.background) || {}).specialties || []).map(o => React.createElement("option", {
     key: o,
@@ -49469,21 +49480,23 @@ function BackgroundPanel({
     className: "form-field"
   }, React.createElement("label", {
     className: "form-lbl"
-  }, "Background Feature"), React.createElement("input", {
+  }, "Background Feature"), (canEdit ? React.createElement("input", {
     className: "form-inp",
     value: bd.featureName || '',
     onChange: e => updBd({
       featureName: e.target.value
     }),
     placeholder: "e.g. Researcher"
-  })), React.createElement("div", {
+  }) : React.createElement("div", {
+    className: "bg-plain-text"
+  }, bd.featureName || '\u2014'))), React.createElement("div", {
     className: "form-field",
     style: {
       gridColumn: '1/-1'
     }
   }, React.createElement("label", {
     className: "form-lbl"
-  }, "Feature description"), React.createElement("textarea", {
+  }, "Feature description"), (canEdit ? React.createElement("textarea", {
     className: "form-inp",
     rows: 3,
     value: bd.featureDescription || '',
@@ -49497,7 +49510,9 @@ function BackgroundPanel({
       lineHeight: 1.5
     },
     placeholder: "When you attempt to learn or recall a piece of lore…"
-  }))), React.createElement("div", {
+  }) : React.createElement("div", {
+    className: "bg-plain-text"
+  }, bd.featureDescription || '\u2014')))), React.createElement("div", {
     style: {
       marginBottom: 10
     }
@@ -49882,6 +49897,7 @@ function FeaturesTab({
   const [expanded, setExpanded] = useState({});
   const [editingFeat, setEditingFeat] = useState(null);
   const [addingProf, setAddingProf] = useState(false);
+  const [profModal, setProfModal] = useState(false);
   const [profOnly, setProfOnly] = useState(false);
   const statColRef = React.useRef(null);
   const [statColH, setStatColH] = React.useState(null);
@@ -50206,7 +50222,7 @@ function FeaturesTab({
       fontSize: 'var(--fs-sm)',
       color: 'var(--text-muted)'
     }
-  }, "Uses: ", feat.usesCurrent, "/", feat.usesMax), React.createElement("button", {
+  }, "Uses: ", feat.usesCurrent, "/", feat.usesMax), canEdit && React.createElement("button", {
     className: "btn btn-sm",
     style: {
       fontSize: 'var(--fs-xs)'
@@ -50254,7 +50270,7 @@ function FeaturesTab({
       display: 'flex',
       gap: 6
     }
-  }, React.createElement("button", {
+  }, canEdit && React.createElement("button", {
     className: "btn btn-icon btn-sm",
     style: {
       fontSize: 'var(--fs-xs)'
@@ -50269,7 +50285,9 @@ function FeaturesTab({
     },
     onClick: () => delFeat(feat.id)
   }, "Delete"))));
-  return React.createElement("div", null, React.createElement("div", {
+  return React.createElement("div", {
+    className: canEdit ? '' : 'ft-ro'
+  }, React.createElement("div", {
     style: {
       marginBottom: 10
     }
@@ -50614,7 +50632,60 @@ function FeaturesTab({
       padding: '3px 12px'
     },
     onClick: () => setAddingProf(true)
-  }, "+ Add")), React.createElement("div", {
+  }, "+ Add"), canEdit && React.createElement("button", {
+    className: "btn",
+    style: {
+      fontSize: 'var(--fs-xs)',
+      padding: '3px 10px'
+    },
+    title: "Manage proficiencies",
+    onClick: () => setProfModal(true)
+  }, "\u2699 Manage")), React.createElement("div", {
+    className: "prof-read"
+  }, PROF_CATS.map(cat => {
+    const names = (profs[cat.id] || []).map(e => entryName(e)).filter(Boolean);
+    if (cat.id === 'tools') (char.toolProficiencies || []).forEach(t => {
+      const n = t && (t.name || t.label) || (typeof t === 'string' ? t : '');
+      if (n) names.push(n);
+    });
+    const seen = {};
+    const uniq = names.filter(n => {
+      const key = String(n).trim().toLowerCase();
+      if (!key || seen[key]) return false;
+      seen[key] = 1;
+      return true;
+    });
+    return React.createElement("div", {
+      key: cat.id,
+      className: "prof-read-line"
+    }, React.createElement("span", {
+      className: "prof-read-lbl"
+    }, cat.label), React.createElement("span", {
+      className: "prof-read-names"
+    }, uniq.length ? uniq.join(' \u00b7 ') : '\u2014'));
+  })), profModal && ReactDOM.createPortal(React.createElement("div", {
+    className: "modal-bg",
+    onClick: () => setProfModal(false)
+  }, React.createElement("div", {
+    className: "modal-box",
+    style: {
+      maxWidth: 920
+    },
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    className: "modal-head"
+  }, React.createElement("span", {
+    className: "modal-title"
+  }, "Manage Proficiencies"), React.createElement("button", {
+    onClick: () => setProfModal(false),
+    style: {
+      background: 'none',
+      border: 'none',
+      color: 'var(--text-muted)',
+      cursor: 'pointer',
+      fontSize: 16
+    }
+  }, "\u2715")), React.createElement("div", {
     className: "prof-bottom-cats"
   }, PROF_CATS.map((cat, ci) => React.createElement("div", {
     key: cat.id,
@@ -50698,7 +50769,7 @@ function FeaturesTab({
       deleteToolProf(tp.id);
     },
     title: "Remove"
-  }, "×"))))))), addingProf && React.createElement(AddProficiencyModal, {
+  }, "×")))))))), document.body)), addingProf && React.createElement(AddProficiencyModal, {
     features: features,
     onAdd: addProf,
     onClose: () => setAddingProf(false)
@@ -52849,7 +52920,7 @@ function App() {
       updateChar(currentId, p);
     },
     onBack: () => setCurrentId(null),
-    onEdit: () => setModal('edit'),
+    onEdit: canEditChar(currentChar, myEmail) ? () => setModal('edit') : null,
     characters: characters,
     onUpdateChar: updateChar,
     onAdvanceDate: () => setInGameDate(d => addGameDay(d)),
