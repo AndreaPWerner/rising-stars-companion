@@ -334,7 +334,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       --surface:rgba(255,250,230,0.82); --surface2:rgba(240,226,188,0.92);
       --border:rgba(139,105,20,0.28);
       --text:#2C1810; --text-muted:#4A2408;
-      --accent:#8B6914; --accent2:#C4962A; --magic:#6A3CB5; --temp-hp:#E6A817;
+      --accent:#8B6914;--scroll-track:rgba(120,95,40,.1);--scroll-thumb:rgba(150,110,35,.45); --accent2:#C4962A; --magic:#6A3CB5; --temp-hp:#E6A817;
       --heading:'Cinzel',serif; --body:'Lora',serif;
       --radius:6px; --shadow:0 2px 18px rgba(44,24,16,0.13);
       --shadow-lg:0 8px 48px rgba(44,24,16,0.22); --tr:0.4s ease;
@@ -353,7 +353,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       --bg:#19150F; --bg2:#131009;
       --surface:rgba(30,25,16,0.90); --surface2:rgba(24,20,12,0.94);
       --border:rgba(210,168,50,0.20); --text:#F0C84A; --text-muted:#C8981C;
-      --accent:#F0C84A; --accent2:#FFD54F; --magic:#B79BE8; --temp-hp:#FFCB3D;
+      --accent:#F0C84A;--scroll-track:rgba(0,0,0,.28);--scroll-thumb:rgba(196,150,42,.5); --accent2:#FFD54F; --magic:#B79BE8; --temp-hp:#FFCB3D;
       --shadow:0 2px 18px rgba(0,0,0,0.55); --shadow-lg:0 8px 48px rgba(0,0,0,0.65);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1161,9 +1161,20 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     /* Spellbook column = fixed header + its own scrollable body (header never scrolls). */
     .magic-col{position:absolute;z-index:4;margin-top:var(--sub-h);display:flex;flex-direction:column;overflow:hidden;}
     .spell-col-head{flex:0 0 auto;padding:2px 6px 0;}
-    .spell-col-body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:2px 6px 4px;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.25) transparent;}
+    .spell-col-body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:2px 6px 4px;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);}
     .spell-col-body::-webkit-scrollbar{width:7px;}
-    .spell-col-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px;}
+    .spell-col-body::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:4px;}
+    *{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:5px;}
+    ::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:5px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+    ::-webkit-scrollbar-corner{background:transparent;}
+    .item-ro button{display:none!important;}
+    .item-ro input,.item-ro select{pointer-events:none;opacity:.75;}
+    .spark-p{position:fixed;pointer-events:none;z-index:12000;color:var(--accent);font-size:10px;line-height:1;opacity:.5;transform:translate(-50%,-50%) rotate(var(--rot,0deg));animation:sparkFade .85s ease-out forwards;text-shadow:0 0 6px rgba(255,220,140,.75);}
+    .spark-strong{font-size:15px;opacity:.95;text-shadow:0 0 10px rgba(255,220,140,.95);}
+    @keyframes sparkFade{0%{opacity:.65;}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.25);}}
     /* text on paper */
     /* text on paper — all content fully dark and opaque against parchment */
     .magic-col{color:#1a1a2e;}
@@ -28832,6 +28843,40 @@ function wardRechargePatch(ch, spell, slotLvl) {
   if (!ch.wardCreated) return { wardHp: wi.max, wardCreated: true };
   return { wardHp: Math.min(wi.max, (parseInt(ch.wardHp) || 0) + 2 * slotLvl) };
 }
+// ── Cursor system: tool cursors + spark trail ──
+function cursorCssFor(style, color) {
+  const col = color || '#C4962A';
+  let svg = '';
+  if (style === 'feather') {
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M3 3 L11 5 C19 8 24 14 25 23 C16 22 10 16 7 8 Z" fill="${col}" stroke="rgba(0,0,0,.5)" stroke-width="1.2"/><path d="M6 6 L22 21" stroke="rgba(0,0,0,.35)" stroke-width="1"/></svg>`;
+  } else if (style === 'brush') {
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M2 2 L10 4 L8 10 L4 8 Z" fill="${col}" stroke="rgba(0,0,0,.5)" stroke-width="1.1"/><path d="M8 8 L24 24" stroke="#7a5c3e" stroke-width="4" stroke-linecap="round"/><path d="M8 8 L24 24" stroke="rgba(0,0,0,.3)" stroke-width="5.4" stroke-linecap="round" fill="none" opacity=".35"/></svg>`;
+  } else if (style === 'wand') {
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M8 8 L25 25" stroke="#4a3a5c" stroke-width="3.4" stroke-linecap="round"/><path d="M7 1.5 L8.6 5.4 L12.5 7 L8.6 8.6 L7 12.5 L5.4 8.6 L1.5 7 L5.4 5.4 Z" fill="${col}" stroke="rgba(0,0,0,.45)" stroke-width=".9"/></svg>`;
+  } else return '';
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 3, auto`;
+}
+(function initSparkTrail() {
+  if (typeof document === 'undefined') return;
+  let last = 0, lx = -99, ly = -99;
+  document.addEventListener('mousemove', e => {
+    const inten = window.__sparkIntensity || 1;
+    const now = performance.now();
+    const dist = Math.hypot(e.clientX - lx, e.clientY - ly);
+    if (now - last < (inten === 2 ? 34 : 110) || dist < (inten === 2 ? 22 : 80)) return;
+    last = now;
+    lx = e.clientX;
+    ly = e.clientY;
+    const el = document.createElement('div');
+    el.className = 'spark-p' + (inten === 2 ? ' spark-strong' : '');
+    el.style.left = e.clientX + 'px';
+    el.style.top = e.clientY + 'px';
+    el.style.setProperty('--rot', Math.floor(Math.random() * 90) + 'deg');
+    el.textContent = '\u2726';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 950);
+  }, { passive: true });
+})();
 function hexToRgba(hex, a) {
   try {
     const h = (hex || '#000000').replace('#', '');
@@ -32350,7 +32395,8 @@ function JournalEditor({
 }
 function JournalBook({
   char,
-  onUpdate
+  onUpdate,
+  canEdit = false
 }) {
   const j = char.journal || {
     closedImg: '',
@@ -32515,6 +32561,7 @@ function KillLogModal({
   }, "Save"))));
 }
 function NotesTab({
+  canEdit = false,
   char,
   onUpdate,
   characters = []
@@ -32612,7 +32659,8 @@ function NotesTab({
     }
   }, React.createElement(JournalBook, {
     char: char,
-    onUpdate: onUpdate
+    onUpdate: onUpdate,
+    canEdit: canEdit
   }), React.createElement("div", null, React.createElement("div", {
     className: "notes-sec-hdr",
     style: {
@@ -32620,9 +32668,9 @@ function NotesTab({
       justifyContent: 'space-between',
       alignItems: 'center'
     }
-  }, React.createElement("span", null, "Event Timeline"), React.createElement("button", {
+  }, React.createElement("span", null, "Event Timeline"), canEdit && React.createElement("button", {
     className: "btn btn-sm",
-    onClick: () => setEditEvent(defaultTimelineEvent())
+    onClick: canEdit ? () => setEditEvent(defaultTimelineEvent()) : undefined
   }, "+ Add Event")), React.createElement("div", {
     className: "tl-legend"
   }, TIMELINE_TYPES.map(t => React.createElement("span", {
@@ -32643,7 +32691,7 @@ function NotesTab({
     return React.createElement("div", {
       key: ev.id,
       className: "tl-event",
-      onClick: () => setEditEvent(ev)
+      onClick: canEdit ? () => setEditEvent(ev) : undefined
     }, React.createElement("div", {
       className: "tl-pip",
       style: {
@@ -32718,7 +32766,7 @@ function NotesTab({
       color: 'var(--text-muted)',
       fontWeight: 'normal'
     }
-  }, killTotal, " slain · ", killKinds, " ", killKinds === 1 ? 'kind' : 'kinds')), killOpen && React.createElement("button", {
+  }, killTotal, " slain · ", killKinds, " ", killKinds === 1 ? 'kind' : 'kinds')), killOpen && canEdit && React.createElement("button", {
     className: "btn btn-sm",
     onClick: e => {
       e.stopPropagation();
@@ -32764,7 +32812,7 @@ function NotesTab({
     }
   }, cl.entries.map(k => React.createElement("div", {
     key: k.id,
-    onClick: () => setEditKill(k),
+    onClick: canEdit ? () => setEditKill(k) : undefined,
     style: {
       display: 'block',
       alignItems: 'baseline',
@@ -32827,7 +32875,7 @@ function NotesTab({
       justifyContent: 'space-between',
       alignItems: 'center'
     }
-  }, React.createElement("span", null, "Notes & Reminders"), React.createElement("button", {
+  }, React.createElement("span", null, "Notes & Reminders"), canEdit && React.createElement("button", {
     className: "btn btn-sm",
     onClick: () => setEditNote(defaultNote())
   }, "+ Add Note")), noteList.length === 0 ? React.createElement("p", {
@@ -32853,7 +32901,7 @@ function NotesTab({
       }
     }, tg.label), React.createElement("span", {
       className: "note-title"
-    }, n.title || '(untitled note)'), React.createElement("button", {
+    }, n.title || '(untitled note)'), canEdit && React.createElement("button", {
       className: "note-edit-btn",
       onClick: () => setEditNote(n),
       title: "Edit"
@@ -38316,6 +38364,8 @@ function MagicCombatModule({
   const [pGlow, setPGlow] = useState(() => !!char.portraitGlow);
   const [shColor, setShColor] = useState(() => char.bannerShadowColor || '#000000');
   const [shOpacity, setShOpacity] = useState(() => char.bannerShadowOpacity != null ? char.bannerShadowOpacity : 85);
+  const [cursorStyle, setCursorStyle] = useState(() => char.cursorStyle || '');
+  const [cursorColor, setCursorColor] = useState(() => char.cursorColor || '#C4962A');
   const [lcx, setLcx] = useState(() => char.leftColX ?? 7);
   const [lcy, setLcy] = useState(() => char.leftColY ?? 9);
   const [lcb, setLcb] = useState(() => char.leftColBottom ?? 9);
@@ -39450,7 +39500,9 @@ function MagicCombatModule({
     portraitBorderColor: pBorderColor,
     portraitGlow: !!pGlow,
     bannerShadowColor: shColor,
-    bannerShadowOpacity: Math.max(0, Math.min(100, parseInt(shOpacity) || 0))
+    bannerShadowOpacity: Math.max(0, Math.min(100, parseInt(shOpacity) || 0)),
+    cursorStyle: cursorStyle,
+    cursorColor: cursorColor
   }); setEditBg(false); };
   const posOpts = ['center center', 'center top', 'center bottom', 'left center', 'right center', 'top left', 'top right', 'bottom left', 'bottom right'];
   const lvlNames = ['—', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
@@ -39795,6 +39847,21 @@ function MagicCombatModule({
   }), React.createElement("input", {
     type: "number", className: "pos-select", style: { width: 52 }, min: 0, max: 100, value: shOpacity, title: "Shadow opacity (0–100)",
     onChange: e => setShOpacity(e.target.value)
+  }), React.createElement("span", {
+    style: { fontSize: 'var(--fs-xs)', color: 'var(--text-subtle-on-dark)', marginRight: 4 }
+  }, "Cursor:"), React.createElement("select", {
+    className: "pos-select",
+    value: cursorStyle,
+    onChange: e => setCursorStyle(e.target.value)
+  }, [['', 'Default'], ['feather', 'Feather pen'], ['brush', 'Paintbrush'], ['wand', 'Wand'], ['spark', 'Spark trail']].map(o => React.createElement("option", {
+    key: o[0],
+    value: o[0]
+  }, o[1]))), ['feather', 'brush', 'wand'].indexOf(cursorStyle) >= 0 && React.createElement("input", {
+    type: "color",
+    value: cursorColor,
+    title: "Cursor color",
+    style: { width: 26, height: 20, padding: 0, border: 'none', background: 'transparent' },
+    onChange: e => setCursorColor(e.target.value)
   }))), React.createElement("div", {
     className: "magic-edit-field"
   }, React.createElement("label", null, "Spellbook Texture (PNG)"), React.createElement("div", {
@@ -42550,6 +42617,7 @@ function ItemForm({
   }, "Save Item")))), document.body);
 }
 function ItemCard({
+  canEdit = true,
   item,
   char,
   onEdit,
@@ -42570,7 +42638,7 @@ function ItemCard({
   const wprof = isWeaponProficient(item, char);
   const atkMod = item.attackAbility ? eMod(char, (item.attackAbility || 'STR').toLowerCase()) + (wprof ? pb : 0) + getModBundle(char).attack : null;
   return React.createElement("div", null, React.createElement("div", {
-    className: "item-row",
+    className: `${canEdit ? "" : "item-ro "}item-row`,
     onClick: () => setOpen(o => !o)
   }, React.createElement("span", {
     style: {
@@ -42956,6 +43024,7 @@ function ItemCard({
   }, "↩ Return"))));
 }
 function CurrencySection({
+  canEdit = false,
   char,
   onUpdate,
   showConverter,
@@ -43077,12 +43146,14 @@ function CurrencySection({
     }, onP.toLocaleString()), containers.map(ct => React.createElement("input", {
       key: ct.id,
       className: "cur-inp",
+    disabled: !canEdit,
       type: "number",
       min: "0",
       value: slots[ct.id] || 0,
       onChange: e => updSlot(id, ct.id, e.target.value)
     })), React.createElement("input", {
       className: "cur-inp",
+    disabled: !canEdit,
       type: "number",
       min: "0",
       value: c.safe || 0,
@@ -43325,6 +43396,7 @@ function makeChangeMulti(bal, price) {
   return delta;
 }
 function LedgerModal({
+  canEdit = false,
   char,
   onUpdate,
   characters = [],
@@ -43678,7 +43750,7 @@ function LedgerModal({
     onClick: onClose
   }, "✕")), React.createElement("div", {
     className: "ledger-body"
-  }, React.createElement("div", {
+  }, canEdit && React.createElement("div", {
     className: "ledger-add-form"
   }, React.createElement("div", {
     style: {
@@ -44518,6 +44590,7 @@ function ContainerExitModal({
   }, "Confirm")))), document.body);
 }
 function InventoryTab({
+  canEdit = false,
   char,
   onUpdate,
   characters = [],
@@ -44969,14 +45042,14 @@ function InventoryTab({
     style: {
       flex: 1
     }
-  }), React.createElement("button", {
+  }), canEdit && React.createElement("button", {
     className: "btn",
     style: {
       fontSize: 'var(--fs-xs)',
       padding: '5px 12px'
     },
     onClick: () => setBatchOpen(true)
-  }, "⊞ Batch Add"), React.createElement("button", {
+  }, "⊞ Batch Add"), canEdit && React.createElement("button", {
     className: "btn btn-gold",
     style: {
       fontSize: 'var(--fs-xs)',
@@ -45001,6 +45074,7 @@ function InventoryTab({
       padding: '6px 0'
     }
   }, "Nothing equipped."), sortItems(equippedItems).map(item => React.createElement(ItemCard, {
+    canEdit: canEdit,
     key: item.id,
     item: item,
     char: char,
@@ -45023,6 +45097,7 @@ function InventoryTab({
       gap: 12
     }
   }, React.createElement(CurrencySection, {
+    canEdit: canEdit,
     char: char,
     onUpdate: onUpdate,
     showConverter: showConverter,
@@ -45048,6 +45123,7 @@ function InventoryTab({
       marginTop: 4
     }
   }, sortItems(safeItems).map(item => React.createElement(ItemCard, {
+    canEdit: canEdit,
     key: item.id,
     item: item,
     char: char,
@@ -45101,6 +45177,7 @@ function InventoryTab({
   }, React.createElement("div", {
     className: "inv-cat-hdr"
   }, React.createElement("span", null, g.icon, " ", g.label, " (", g.items.length, ")")), g.items.map(item => React.createElement(ItemCard, {
+    canEdit: canEdit,
     key: item.id,
     item: item,
     char: char,
@@ -45183,6 +45260,7 @@ function InventoryTab({
         gap: 8
       }
     }, sortItems(ctItems).map(item => React.createElement(ItemCard, {
+    canEdit: canEdit,
     key: item.id,
     item: item,
     char: char,
@@ -45253,6 +45331,7 @@ function InventoryTab({
     },
     onClick: () => setShowArchive(a => !a)
   }, showArchive ? '▲' : '▼', " Archive (", archived.length, " item", archived.length !== 1 ? 's' : '', ")"), showArchive && archived.map(item => React.createElement(ItemCard, {
+    canEdit: canEdit,
     key: item.id,
     item: item,
     char: char,
@@ -45297,6 +45376,7 @@ function InventoryTab({
     onUpdateChar: onUpdateChar,
     onClose: () => setDupItem(null)
   }), showLedger && React.createElement(LedgerModal, {
+    canEdit: canEdit,
     char: char,
     onUpdate: onUpdate,
     characters: characters,
@@ -49774,6 +49854,7 @@ const PROF_CATS = [{
 const entryName = e => typeof e === 'string' ? e : e?.name || '';
 const entryLink = (e, features) => typeof e === 'string' ? null : features.find(f => f.id === e?.linkedFeature)?.name;
 function FeaturesTab({
+  canEdit = false,
   char,
   onUpdate,
   spellLibrary = [],
@@ -49816,6 +49897,7 @@ function FeaturesTab({
   const passiveInv = 10 + getSkillBonus(SKILLS.find(s => s.id === 'investigation'));
   const passiveIns = 10 + getSkillBonus(SKILLS.find(s => s.id === 'insight'));
   const toggleSkill = (id, field) => {
+    if (!canEdit) return;
     const cur = skills[id] || {
       prof: false,
       expertise: false
@@ -49848,13 +49930,13 @@ function FeaturesTab({
       features: features.filter(f => f.id !== id)
     });
   };
-  const setUses = (id, val) => onUpdate({
+  const setUses = (id, val) => canEdit && onUpdate({
     features: features.map(f => f.id === id ? {
       ...f,
       usesCurrent: Math.max(0, Math.min(f.usesMax, val))
     } : f)
   });
-  const recharge = id => onUpdate({
+  const recharge = id => canEdit && onUpdate({
     features: features.map(f => f.id === id ? {
       ...f,
       usesCurrent: f.usesMax
@@ -50174,7 +50256,7 @@ function FeaturesTab({
     onClick: () => setEditingFeat({
       ...feat
     })
-  }, "✎ Edit"), React.createElement("button", {
+  }, "✎ Edit"), canEdit && React.createElement("button", {
     className: "btn btn-danger btn-sm",
     style: {
       fontSize: 'var(--fs-xs)'
@@ -50460,7 +50542,7 @@ function FeaturesTab({
       textTransform: 'uppercase',
       color: 'var(--text-muted)'
     }
-  }, "Features & Traits"), React.createElement("button", {
+  }, "Features & Traits"), canEdit && React.createElement("button", {
     className: "btn btn-gold",
     style: {
       fontSize: 'var(--fs-xs)',
@@ -50518,7 +50600,7 @@ function FeaturesTab({
       textTransform: 'uppercase',
       color: 'var(--text-muted)'
     }
-  }, "Proficiencies"), React.createElement("button", {
+  }, "Proficiencies"), canEdit && React.createElement("button", {
     className: "btn btn-gold",
     style: {
       fontSize: 'var(--fs-xs)',
@@ -51322,6 +51404,7 @@ function CharacterPage({
   }, "✕")), React.createElement("div", {
     className: "section-panel-body"
   }, ribbonTab === 'inventory' && React.createElement(InventoryTab, {
+    canEdit: canEdit,
     char: char,
     onUpdate: onUpdate,
     characters: characters,
@@ -51329,6 +51412,7 @@ function CharacterPage({
     inGameDate: inGameDate,
     spellLibrary: spellLibrary
   }), ribbonTab === 'features' && React.createElement(FeaturesTab, {
+    canEdit: canEdit,
     char: char,
     onUpdate: onUpdate,
     spellLibrary: spellLibrary,
@@ -51347,6 +51431,7 @@ function CharacterPage({
     inGameDate: inGameDate,
     spellLibrary: spellLibrary
   }), ribbonTab === 'notes' && React.createElement(NotesTab, {
+    canEdit: canEdit,
     char: char,
     onUpdate: onUpdate,
     characters: characters
@@ -52591,6 +52676,13 @@ function App() {
   const [inGameDate, setInGameDate] = useState(null);
   const [modal, setModal] = useState(null);
   const [myEmail, setMyEmail] = useState(null);
+  React.useEffect(() => {
+    const me = (myEmail || '').toLowerCase();
+    const mine = me ? (characters || []).find(c => String(c.ownerEmail || '').toLowerCase() === me) : null;
+    const st = mine && mine.cursorStyle;
+    window.__sparkIntensity = st === 'spark' ? 2 : 1;
+    document.body.style.cursor = st && st !== 'spark' ? cursorCssFor(st, mine.cursorColor) : '';
+  }, [characters, myEmail]);
   const [events, setEvents] = useState([]);
   _logEventCb = evt => setEvents(prev => [...prev.slice(-39), evt]);
   React.useEffect(() => { try{ saveOpenTabPref(currentId); }catch(e){} }, [currentId]);
@@ -52767,4 +52859,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 </script>
 </body>
-</html>
+</html>canEdit && 
