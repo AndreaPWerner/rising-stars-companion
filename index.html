@@ -3369,6 +3369,43 @@ const CLASS_LIBRARY = {
           atLevel: 18,
           description: 'At the start of each of your turns, you regain Hit Points equal to 5 + your Constitution modifier if you have no more than half of your Hit Points left. You must have at least 1 Hit Point to benefit.'
         }]
+      }, samurai: {
+        name: 'Samurai',
+        features: [{
+          id: 'samuraiBonusProf',
+          name: 'Bonus Proficiency (Samurai)',
+          atLevel: 3,
+          description: 'You gain proficiency in one of History, Insight, Performance, or Persuasion \u2014 or one language of your choice.'
+        }, {
+          id: 'fightingSpirit',
+          name: 'Fighting Spirit',
+          atLevel: 3,
+          rechargeOn: 'long',
+          usesMax: 3,
+          description: 'As a bonus action, give yourself advantage on all weapon attack rolls until the end of the current turn and gain 5 temporary hit points (10 at fighter level 10, 15 at level 15). Three uses; you regain all expended uses on a long rest.'
+        }, {
+          id: 'elegantCourtier',
+          name: 'Elegant Courtier',
+          atLevel: 7,
+          description: 'Add your Wisdom modifier to Charisma (Persuasion) checks. You also gain proficiency in Wisdom saving throws (or Intelligence or Charisma saves if already proficient in Wisdom).'
+        }, {
+          id: 'tirelessSpirit',
+          name: 'Tireless Spirit',
+          atLevel: 10,
+          description: 'When you roll initiative and have no uses of Fighting Spirit remaining, you regain one use.'
+        }, {
+          id: 'rapidStrike',
+          name: 'Rapid Strike',
+          atLevel: 15,
+          description: 'Once per turn, if you have advantage on a weapon attack against a target, you can forgo that advantage to make one additional weapon attack against it as part of the same action.'
+        }, {
+          id: 'strengthBeforeDeath',
+          name: 'Strength Before Death',
+          atLevel: 18,
+          rechargeOn: 'long',
+          usesMax: 1,
+          description: 'When damage would reduce you to 0 HP, you can delay falling unconscious and immediately take an extra turn; you drop to 0 only after that turn ends.'
+        }]
       }
     }
   },
@@ -4914,6 +4951,13 @@ function deriveClassFeatures(char) {
   return out;
 }
 const FEAT_LIBRARY = {
+  kredekathBoon: {
+    name: 'Boon of Kredekath',
+    rechargeOn: 'short',
+    usesMax: 1,
+    statMods: [{ stat: 'cha', value: 2 }],
+    description: 'She ate the dragon Kredekath. It was a whole thing. This unofficial feat changed her size category, altered her Charisma, granted a breath weapon usable once per short or long rest (track it with this feature\u2019s use), and a permanent fly speed. These gifts are lost only if she devours another creature of comparable, dragon-tier power \u2014 which would simply replace them with new impossibilities. Set size and fly speed on the sheet itself; adjust this feature\u2019s Charisma modifier to match the table ruling.'
+  },
   alert: {
     name: 'Alert',
     description: 'Always watchful: you can\u2019t be surprised while conscious, attackers don\u2019t gain advantage on you merely for being unseen, and you gain a +5 bonus to initiative.',
