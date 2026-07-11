@@ -484,7 +484,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .save-display{font-family:var(--heading);font-size:var(--fs-xs);color:var(--text-muted);border-left:1px solid var(--border);padding-left:3px;white-space:nowrap;}
     .save-display.proficient{color:var(--accent);font-weight:600;}
     /* derived stats */
-    .derived-row{display:flex;gap:7px;flex-wrap:wrap;}
+    .derived-row{display:flex;gap:7px;flex-wrap:wrap;position:relative;}
+    .derived-row:hover{z-index:500;}
     .stat-row-1{align-items:center;}
     .stat-row-2{margin-top:7px;}
     .stat-row-spacer{flex:1 1 auto;min-width:8px;}
@@ -1172,6 +1173,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     ::-webkit-scrollbar-corner{background:transparent;}
     .item-ro button{display:none!important;}
     .item-ro input,.item-ro select{pointer-events:none;opacity:.75;}
+    .bg-ro button{display:none!important;}
+    .bg-ro select{display:none!important;}
+    .bg-ro input:placeholder-shown{display:none;}
+    .bg-ro input,.bg-ro textarea{pointer-events:none;}
     .spark-p{position:fixed;pointer-events:none;z-index:12000;color:var(--accent);font-size:10px;line-height:1;opacity:.5;transform:translate(-50%,-50%) rotate(var(--rot,0deg));animation:sparkFade .85s ease-out forwards;text-shadow:0 0 6px rgba(255,220,140,.75);}
     .spark-strong{font-size:15px;opacity:.95;text-shadow:0 0 10px rgba(255,220,140,.95);}
     @keyframes sparkFade{0%{opacity:.65;}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.25);}}
@@ -1274,7 +1279,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .magic-edit-field label{display:block;font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-x-wide);text-transform:uppercase;color:var(--text-muted-on-dark);margin-bottom:4px;}
     .magic-edit-inp{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:5px 8px;outline:none;box-sizing:border-box;}
     .magic-edit-inp:focus{border-color:var(--text-subtle-on-dark);}
-    .magic-edit-row{display:flex;gap:6px;align-items:center;}
+    .magic-edit-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;}
     .img-pick-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:4px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
     .img-pick-btn:hover{background:rgba(255,255,255,.22);}
     .pos-select{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:var(--text-on-dark);font-size:var(--fs-xs);padding:3px 5px;outline:none;}
@@ -49132,7 +49137,8 @@ function ToolProfModal({
 }
 function BackgroundPanel({
   char,
-  onUpdate
+  onUpdate,
+  canEdit = false
 }) {
   const bd = char.backgroundDetails || {};
   const [open, setOpen] = useState(false);
@@ -49286,7 +49292,7 @@ function BackgroundPanel({
   const grantedSkillNames = (bd.bgSkillProfs || []).map(id => SKILLS.find(s => s.id === id)?.name || id);
   const bgLabel = [char.background, bd.specialty && !(char.background || '').toLowerCase().includes((bd.specialty || '').toLowerCase()) ? bd.specialty : null].filter(Boolean).join(' — ') || 'Background';
   return React.createElement("div", {
-    className: "bg-panel"
+    className: `bg-panel${canEdit ? '' : ' bg-ro'}`
   }, React.createElement("div", {
     className: "bg-panel-head",
     onClick: () => setOpen(o => !o)
@@ -50373,7 +50379,8 @@ function FeaturesTab({
     }, d.target)))));
   })(), React.createElement(BackgroundPanel, {
     char: char,
-    onUpdate: onUpdate
+    onUpdate: onUpdate,
+    canEdit: canEdit
   }), React.createElement("div", {
     className: "two-col-scroll"
   }, React.createElement("div", {
