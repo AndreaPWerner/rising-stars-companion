@@ -507,6 +507,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     @media (prefers-reduced-motion:reduce){.hp-bufferbar{animation:none;}}
     .hp-bufferbar .hp-bar{position:relative;z-index:1;height:100%;border-radius:5px 0 0 5px;transition:width .4s ease,background .4s ease;}
     .temp-bar.buffer{position:relative;z-index:2;height:100%;background:var(--temp-hp);box-shadow:0 0 7px var(--temp-hp);border-left:1px solid rgba(255,255,255,.6);transition:width .4s ease;}
+    .ward-bar{position:relative;z-index:2;height:100%;background:linear-gradient(90deg,#8a6fc9,#6d55a8);box-shadow:0 0 7px var(--temp-hp);border-left:1px solid rgba(255,255,255,.6);transition:width .4s ease;}
     .derived-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:4px;}
     .derived-lbl{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-muted);}
     .derived-val{font-family:var(--heading);font-size:var(--fs-sm);font-weight:600;color:var(--text);}
@@ -28737,6 +28738,20 @@ const FAMILIAR_FORMS = [
   { id: 'quasit', name: 'Quasit (chain)', size: 'Tiny', ac: 13, hp: 7, ab: [5, 17, 10, 7, 10, 10], speeds: { walk: 40 }, attacks: 'Claws +4 (1d4+3 slashing + DC 10 Con save, 2d4 poison)', skills: 'Stealth +5', traits: 'Darkvision 120 ft. Shapechanger. Magic Resistance. Invisibility (at will). Scare (1/day): DC 10 Wis or frightened 1 min.' },
   { id: 'sprite', name: 'Sprite (chain)', size: 'Tiny', ac: 15, hp: 2, ab: [3, 18, 10, 14, 13, 11], speeds: { walk: 10, fly: 40 }, attacks: 'Longsword +2 (1 slashing); Shortbow +6 (1 piercing + DC 10 Con save or poisoned 1 min; fail by 5+ = unconscious)', skills: 'Perception +3, Stealth +8', traits: 'Invisibility (at will). Heart Sight: touch reveals emotional state and alignment.' }
 ];
+function drakePresetFor(rangerLv) {
+  const pb = rangerLv >= 17 ? 6 : rangerLv >= 13 ? 5 : rangerLv >= 9 ? 4 : rangerLv >= 5 ? 3 : 2;
+  return {
+    species: 'Drake companion',
+    ac: 14,
+    hpMax: 5 + 5 * rangerLv,
+    hp: 5 + 5 * rangerLv,
+    hpTemp: 0,
+    size: rangerLv >= 7 ? 'Medium' : 'Small',
+    abilityScores: { str: 16, dex: 10, con: 15, int: 8, wis: 14, cha: 8 },
+    speeds: { walk: 40, fly: 0, swim: 0, climb: 0, burrow: 0 },
+    notes: 'Darkvision 60 ft.\nAttacks: Bite +2+PB to hit (1d6+PB piercing) \u2014 at ranger ' + rangerLv + ': +' + (2 + pb) + ' to hit, 1d6+' + pb + '.\nInfused Strikes (reaction): when a creature within 30 ft hits with an attack, infuse the strike with drake essence for +1d6 damage of the chosen essence type.\nVanishes at 0 HP; resummon after a long rest or by expending a spell slot.'
+  };
+}
 const MOUNT_FORMS = [
   { id: 'destrier', name: 'Destrier (warhorse)', size: 'Large', ac: 11, hp: 19, ab: [18, 12, 13, 2, 12, 7], speeds: { walk: 60 }, attacks: 'Hooves +6 (2d6+4 bludgeoning)', skills: '', traits: 'Trampling Charge: after moving 20+ ft straight and hitting with hooves, DC 14 Str save or target is knocked prone; bonus-action hooves attack against it.' },
   { id: 'draft', name: 'Draft horse', size: 'Large', ac: 10, hp: 19, ab: [18, 10, 12, 2, 11, 7], speeds: { walk: 40 }, attacks: 'Hooves +6 (2d4+4 bludgeoning)', skills: '', traits: '' },
@@ -28753,6 +28768,21 @@ function compApplyFormPatch(f) {
     speeds: { walk: f.speeds.walk || 0, fly: f.speeds.fly || 0, swim: f.speeds.swim || 0, climb: f.speeds.climb || 0, burrow: 0 },
     notes: compFormNotes(f)
   };
+}
+// ── Arcane Ward (Abjuration wizard) ──
+function wardInfoFor(ch) {
+  const wiz = (ch.classes || []).find(c => /wizard/i.test(c.className || '') && /abjur/i.test(c.subclass || ''));
+  if (!wiz) return null;
+  const lvl = parseInt(wiz.level) || 0;
+  if (lvl < 2) return null;
+  const intMod = Math.floor(((parseInt((ch.abilityScores || {}).int) || 10) - 10) / 2);
+  return { max: Math.max(1, 2 * lvl + intMod) };
+}
+function wardRechargePatch(ch, spell, slotLvl) {
+  const wi = wardInfoFor(ch);
+  if (!wi || !spell || String(spell.school || '').toLowerCase() !== 'abjuration' || !(slotLvl >= 1)) return {};
+  if (!ch.wardCreated) return { wardHp: wi.max, wardCreated: true };
+  return { wardHp: Math.min(wi.max, (parseInt(ch.wardHp) || 0) + 2 * slotLvl) };
 }
 function hexToRgba(hex, a) {
   try {
@@ -29609,6 +29639,8 @@ function HpTracker({
   onUpdate,
   canEdit = false
 }) {
+  const wardI = wardInfoFor(char);
+  const wardCur = wardI ? Math.max(0, Math.min(wardI.max, parseInt(char.wardHp) || 0)) : 0;
   const hpMaxMod = getModBundle(char).hpMax;
   const exh = char.exhaustion || 0;
   const rawMax = (parseInt(char.hpMax) || 0) + hpMaxMod;
@@ -29634,7 +29666,23 @@ function HpTracker({
     className: "hp-merged"
   }, React.createElement("div", {
     className: "hp-merged-side"
-  }, React.createElement("span", {
+  }, wardI && React.createElement("span", {
+    className: "hp-lbl",
+    title: "Arcane Ward \u2014 absorbs damage before HP. Recharges by 2\u00d7 slot level whenever an abjuration spell of 1st level or higher is cast; created at full strength on the first such cast after a long rest."
+  }, "\u26e8 Ward"), wardI && React.createElement("div", {
+    className: "hp-fields"
+  }, canEdit ? React.createElement("input", {
+    className: "hp-inp",
+    type: "number",
+    min: "0",
+    max: wardI.max,
+    value: wardCur,
+    onChange: e => onUpdate({ wardHp: Math.max(0, Math.min(wardI.max, parseInt(e.target.value) || 0)) })
+  }) : React.createElement("span", {
+    style: { fontWeight: 600, padding: '0 3px' }
+  }, wardCur), React.createElement("span", {
+    style: { color: 'var(--text-muted)', fontSize: 'var(--fs-xs)' }
+  }, " / ", wardI.max)), React.createElement("span", {
     className: "hp-lbl"
   }, "HP"), React.createElement("div", {
     className: "hp-fields"
@@ -29699,6 +29747,11 @@ function HpTracker({
     className: "temp-bar buffer",
     style: {
       width: `${tmpFillPct}%`
+    }
+  }), wardI && wardCur > 0 && React.createElement("div", {
+    className: "ward-bar",
+    style: {
+      width: `${Math.min(100, wardCur / Math.max(1, effMax) * 100)}%`
     }
   })), React.createElement("div", {
     className: "hp-merged-side end",
@@ -31485,7 +31538,13 @@ function CompanionsTab({
   }, React.createElement("option", { value: "" }, "Custom / none"), FAMILIAR_FORMS.map(f => React.createElement("option", {
     key: f.id,
     value: f.id
-  }, f.name)))), compTypeId(editing) === 'mount' && formField('Breed', React.createElement("select", {
+  }, f.name)))), compTypeId(editing) === 'drake' && formField('Preset', React.createElement("button", {
+    className: "btn btn-sm btn-gold",
+    onClick: () => {
+      const rl = (char.classes || []).filter(c => /ranger/i.test(c.className || '')).reduce((a, c) => a + (parseInt(c.level) || 0), 0) || 1;
+      setF(drakePresetFor(rl));
+    }
+  }, "Apply Drakewarden stats")), compTypeId(editing) === 'mount' && formField('Breed', React.createElement("select", {
     className: "form-sel",
     value: '',
     onChange: e => {
@@ -38802,6 +38861,7 @@ function MagicCombatModule({
         ...us,
         [slot]: (parseInt(us[slot]) || 0) + 1
       };
+      if (slot > 0) Object.assign(patch, wardRechargePatch(char, spell, slot));
     }
     {
       const _cp = consumeSpellComponents(characters, spell);
@@ -38889,6 +38949,7 @@ function MagicCombatModule({
         ...us,
         [slot]: (parseInt(us[slot]) || 0) + 1
       };
+      if (slot > 0) Object.assign(patch, wardRechargePatch(char, spell, slot));
     }
     {
       const _cp2 = consumeSpellComponents(characters, spell);
@@ -38969,6 +39030,7 @@ function MagicCombatModule({
         ...us,
         [slot]: (parseInt(us[slot]) || 0) + 1
       };
+      if (slot > 0) Object.assign(patch, wardRechargePatch(char, spell, slot));
     }
     {
       const _cp = consumeSpellComponents(characters, spell);
@@ -39128,6 +39190,7 @@ function MagicCombatModule({
         ...us,
         [slot]: (parseInt(us[slot]) || 0) + 1
       };
+      if (slot > 0) Object.assign(patch, wardRechargePatch(char, spell, slot));
     }
     {
       const _cp2 = consumeSpellComponents(characters, spell);
@@ -39438,6 +39501,8 @@ function MagicCombatModule({
       return i;
     }).filter(i => !(i && i.conjured && (i.conjuredExpiry === 'shortRest' || i.conjuredExpiry === 'longRest' && type === 'long')));
     if (type === 'long') {
+      updates.wardHp = 0;
+      updates.wardCreated = false;
       updates.spellSlotsUsed = {
         1: 0,
         2: 0,
