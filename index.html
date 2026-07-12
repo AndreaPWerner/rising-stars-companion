@@ -961,12 +961,12 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .ds-flair-dead{color:var(--danger-on-dark);font-weight:700;}
     .ds-flair-stable{color:#6FB7C9;}
     .ds-row{display:flex;align-items:center;justify-content:center;gap:8px;}
-    .ds-side-lbl{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:var(--ls-tight);min-width:38px;color:var(--text-subtle-on-dark);}
+    .ds-side-lbl{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:var(--ls-tight);min-width:38px;color:var(--text-muted);}
     .ds-fail-lbl{text-align:right;color:#B5645A;}
     .ds-pass-lbl{text-align:left;color:#5E94A6;}
     .ds-pips{display:flex;align-items:center;gap:6px;}
-    .ds-pip{width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);background:transparent;display:inline-block;transition:box-shadow .2s,background .2s;}
-    .ds-divider{width:2px;height:16px;background:rgba(255,255,255,.4);margin:0 3px;border-radius:1px;}
+    .ds-pip{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text-muted);background:transparent;display:inline-block;transition:box-shadow .2s,background .2s;}
+    .ds-divider{width:2px;height:16px;background:var(--border);margin:0 3px;border-radius:1px;}
     .ds-pip-fail{border-color:#7a3b34;background:rgba(122,59,52,.25);}
     .ds-pip-pass{border-color:#33606e;background:rgba(51,96,110,.25);}
     .ds-pip-fail.on{background:#E8603C;border-color:#E8603C;box-shadow:0 0 7px rgba(232,96,60,.85);}
@@ -31786,7 +31786,7 @@ function CompanionsTab({
     style: { marginTop: 14 }
   }, React.createElement("button", {
     className: "btn btn-sm",
-    style: { fontSize: 'var(--fs-xs)', opacity: .8 },
+    style: { fontSize: 'var(--fs-xs)', opacity: 1 },
     onClick: () => setShowDeparted(v => !v)
   }, showDeparted ? '\u25b8' : '\u25b8', " 🕯 Departed (", departed.length, ")"), showDeparted && React.createElement("div", {
     className: "companion-cards",
@@ -32865,7 +32865,7 @@ function NotesTab({
     style: {
       marginLeft: 'auto',
       color: 'var(--text-muted)',
-      opacity: .5,
+      opacity: 1,
       fontSize: 'var(--fs-xs)'
     }
   }, "✎"))))))), partyTotal > 0 && React.createElement("div", {
@@ -33487,7 +33487,7 @@ function SlotTracker({
   if (!hasAny) return React.createElement("p", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .45,
+      opacity: 1,
       fontStyle: 'italic',
       margin: 0
     }
@@ -33833,7 +33833,7 @@ function SpellEffectsSection({
     }
   }, "DC uses stat ", React.createElement("span", {
     style: {
-      opacity: .6
+      opacity: 1
     }
   }, "(override)")), React.createElement("select", {
     className: "form-sel",
@@ -35322,7 +35322,7 @@ function SpellCard({
     style: {
       fontSize: 'var(--fs-xs)',
       flexShrink: 0,
-      opacity: .6,
+      opacity: 1,
       marginLeft: 2
     }
   }, open ? '▲' : '▼')), open && React.createElement("div", {
@@ -35535,7 +35535,7 @@ function SpellCard({
       marginTop: 3,
       fontStyle: 'italic',
       fontSize: 'var(--fs-sm)',
-      opacity: .7
+      opacity: 1
     }
   }, spell.personalNotes), spell.spellbookImageUrl && React.createElement("div", {
     className: "spell-img-wrap"
@@ -35546,7 +35546,7 @@ function SpellCard({
   })), spell.sourceRef && React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .45,
+      opacity: 1,
       fontStyle: 'italic',
       marginTop: 2
     }
@@ -35686,19 +35686,19 @@ function SpellCard({
       }
     }, ef.value), ef.target && ef.target !== 'enemy' && React.createElement("span", {
       style: {
-        opacity: .75,
+        opacity: 1,
         fontWeight: 400
       }
     }, "(", ef.target, ")"), isCondtl && React.createElement("span", {
       style: {
         fontStyle: 'italic',
         fontWeight: 400,
-        opacity: .85
+        opacity: 1
       }
     }, "if ", ef.circumstance), !isCondtl && ef.notes && React.createElement("span", {
       style: {
         fontWeight: 400,
-        opacity: .85
+        opacity: 1
       }
     }, ef.notes));
   }))), (spell.modes || []).length > 0 && React.createElement("div", {
@@ -36460,7 +36460,7 @@ function ModeSettings({
       }
     }, "✦ Damage type is chosen at cast: ", choiceTypes.join(' / '), ". ", React.createElement("span", {
       style: {
-        opacity: .7
+        opacity: 1
       }
     }, "Driven by the shared Grouping on the damage components below.")) : React.createElement("div", {
       style: {
@@ -36496,7 +36496,7 @@ function ModeSettings({
   }, React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .6,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, "Damage Components, Healing, and Spell Effects below edit this mode while its tab is active."), React.createElement("button", {
@@ -37374,7 +37374,7 @@ function SpellForm({
   }, "Sets Base AC ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .65,
+      opacity: 1,
       fontWeight: 400
     }
   }, "(applied when activated as an effect)")), React.createElement("select", {
@@ -37432,7 +37432,7 @@ function SpellForm({
       fontSize: 'var(--fs-xs)',
       textTransform: 'none',
       letterSpacing: 0,
-      opacity: .7,
+      opacity: 1,
       marginLeft: 8,
       fontStyle: 'italic'
     }
@@ -37549,7 +37549,7 @@ function SpellForm({
       fontSize: 'var(--fs-xs)',
       textTransform: 'none',
       letterSpacing: 0,
-      opacity: .7,
+      opacity: 1,
       marginLeft: 8,
       fontStyle: 'italic'
     }
@@ -40300,7 +40300,7 @@ function MagicCombatModule({
       }, React.createElement("span", null, LEVEL_NAMES[l]), React.createElement("span", {
         style: {
           fontSize: 'var(--fs-xs)',
-          opacity: .7
+          opacity: 1
         }
       }, collapsedLevels.has(l) ? `${grp.length} ▶` : '▼')), !collapsedLevels.has(l) && grp.map(s => React.createElement(SpellCard, {
         key: s.id,
@@ -40418,7 +40418,7 @@ function MagicCombatModule({
       }, React.createElement("span", null, LEVEL_NAMES[l]), React.createElement("span", {
         style: {
           fontSize: 'var(--fs-xs)',
-          opacity: .7
+          opacity: 1
         }
       }, collapsedLevels.has(`p${l}`) ? `${grp.length} ▶` : '▼')), !collapsedLevels.has(`p${l}`) && grp.map(s => React.createElement(SpellCard, {
         key: s.id,
@@ -40499,7 +40499,7 @@ function MagicCombatModule({
     className: "combat-stat-lbl"
   }, p.name, p.pact ? ' · Pact' : '', " ", React.createElement("span", {
     style: {
-      opacity: .8,
+      opacity: 1,
       fontSize: 'var(--fs-xs)'
     }
   }, "(", p.ability, ")")), React.createElement("span", null, fmtMod(p.attack), " to hit", p.showDC ? ` · save DC ${p.dc}` : ''))), rogLevel > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
@@ -40522,15 +40522,24 @@ function MagicCombatModule({
     className: "combat-stat"
   }, React.createElement("span", {
     className: "cond-name"
-  }, "Armor Proficiencies"), React.createElement("span", null, armorProfs.join(', '))), weaponProfs.length > 0 && React.createElement("div", {
+  }, "Armor"), React.createElement("span", {
+    style: {
+      fontSize: 'var(--fs-sm)'
+    }
+  }, armorProfs.join(', '))), weaponProfs.length > 0 && React.createElement("div", {
     className: "combat-stat"
   }, React.createElement("span", {
     className: "cond-name"
-  }, "Weapons Proficiencies"), React.createElement("span", null, weaponProfs.map(expandWeaponProf).join(' · ')))), (char.features || []).some(f => parseInt(f.usesMax) > 0) && React.createElement("div", {
+  }, "Weapons"), React.createElement("span", {
+    style: {
+      fontSize: 'var(--fs-sm)'
+    }
+  }, weaponProfs.map(expandWeaponProf).join(' · ')))), (char.features || []).some(f => parseInt(f.usesMax) > 0) && React.createElement("div", {
     style: {
       marginTop: 10
     }
   }, React.createElement("div", {
+    className: "combat-block-title",
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
@@ -40565,7 +40574,7 @@ function MagicCombatModule({
       className: "cond-name"
     }, f.name || 'Resource', f.rechargeOn && f.rechargeOn !== 'none' ? React.createElement("span", {
       style: {
-        opacity: .5,
+        opacity: 1,
         fontSize: 'var(--fs-xs)'
       }
     }, " (", f.rechargeOn === 'dawn' ? 'dawn' : f.rechargeOn + ' rest', ")") : ''), React.createElement("span", {
@@ -40607,6 +40616,7 @@ function MagicCombatModule({
       marginTop: 10
     }
   }, React.createElement("div", {
+    className: "combat-block-title",
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
@@ -40619,7 +40629,7 @@ function MagicCombatModule({
     style: {
       textTransform: 'none',
       letterSpacing: 0,
-      opacity: .7
+      opacity: 1
     }
   }, "— no spell slots used")), React.createElement("div", {
     style: {
@@ -40837,7 +40847,7 @@ function MagicCombatModule({
       fontSize: 'var(--fs-sm)',
       fontFamily: 'var(--body)',
       padding: '2px 0',
-      opacity: 0.92
+      opacity: 1
     }
   }, char.combatEquipmentNotes) : null)))), React.createElement("div", {
     className: "combat-col-effects"
@@ -41925,7 +41935,7 @@ function ItemForm({
       textTransform: 'none',
       letterSpacing: 0,
       fontSize: 'var(--fs-xs)',
-      opacity: .65
+      opacity: 1
     }
   }, "— applied while equipped"))), React.createElement(StatModEditor, {
     mods: f.statMods,
@@ -42838,7 +42848,7 @@ function ItemCard({
   })(), React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .5,
+      opacity: 1,
       flexShrink: 0
     }
   }, open ? '▲' : '▼')), open && React.createElement("div", {
@@ -45159,7 +45169,7 @@ function InventoryTab({
     className: "btn btn-sm",
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .9,
+      opacity: 1,
       marginTop: 4,
       alignSelf: 'flex-start'
     },
@@ -45239,7 +45249,7 @@ function InventoryTab({
       className: "btn btn-sm",
       style: {
         fontSize: 'var(--fs-xs)',
-        opacity: .9
+        opacity: 1
       },
       onClick: () => setOpenContainers(p => ({ ...p, [ct.id]: !opened }))
     }, opened ? '▲' : '▼', " 🎒 ", ct.name, " (", ctItems.length, " item", ctItems.length !== 1 ? 's' : '', ")"), React.createElement("div", {
@@ -45301,7 +45311,7 @@ function InventoryTab({
     className: "btn btn-sm",
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     },
     onClick: () => setShowLentOut(s => !s)
   }, showLentOut ? '▲' : '▼', " Lent Out (", lentOut.length, ")"), showLentOut && React.createElement("div", {
@@ -45345,7 +45355,7 @@ function InventoryTab({
     className: "btn btn-sm",
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     },
     onClick: () => setShowArchive(a => !a)
   }, showArchive ? '▲' : '▼', " Archive (", archived.length, " item", archived.length !== 1 ? 's' : '', ")"), showArchive && archived.map(item => React.createElement(ItemCard, {
@@ -45634,7 +45644,7 @@ function GrantedSpellEditor({
   }, list.length === 0 && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .55,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, "No granted spells."), list.map((e, i) => {
@@ -45690,7 +45700,7 @@ function GrantedSpellEditor({
         gap: 10,
         alignItems: 'center',
         fontSize: 'var(--fs-xs)',
-        opacity: .85
+        opacity: 1
       }
     }, React.createElement("label", {
       style: {
@@ -45729,7 +45739,7 @@ function GrantedSpellEditor({
       })
     })), (e.cost || 0) === 0 && React.createElement("span", {
       style: {
-        opacity: .6,
+        opacity: 1,
         fontStyle: 'italic'
       }
     }, "at will")), isSending && React.createElement("label", {
@@ -45738,7 +45748,7 @@ function GrantedSpellEditor({
         gap: 4,
         alignItems: 'center',
         fontSize: 'var(--fs-xs)',
-        opacity: .85
+        opacity: 1
       }
     }, "Paired holder", React.createElement("input", {
       style: {
@@ -45793,7 +45803,7 @@ function DefenseEditor({
   }, list.length === 0 && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .55,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, "No defenses."), list.map((d, i) => React.createElement("div", {
@@ -45904,7 +45914,7 @@ function StatModEditor({
   }, list.length === 0 && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .55,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, "No modifiers."), list.map((m, i) => React.createElement("div", {
@@ -46013,7 +46023,7 @@ function ConditionalModEditor({
   }, list.length === 0 && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .55,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, "No conditional modifiers."), list.map((m, i) => React.createElement("div", {
@@ -47277,12 +47287,12 @@ function ActiveEffectsPanel({
       style: {
         fontStyle: 'italic',
         fontWeight: 400,
-        opacity: .85
+        opacity: 1
       }
     }, "if ", ct.circumstance), ct.saveEnds && cnt > 1 && React.createElement("span", {
       style: {
         fontWeight: 400,
-        opacity: .9
+        opacity: 1
       }
     }, parseInt(ct.successes) || 0, "✓", parseInt(ct.failures) || 0, "✗"), ct.saveEnds && React.createElement("span", {
       style: {
@@ -47975,14 +47985,14 @@ function SpellInfoModal({
       }
     }, ef.value), ef.target && ef.target !== 'enemy' && React.createElement("span", {
       style: {
-        opacity: .7,
+        opacity: 1,
         fontWeight: 400
       }
     }, "(", ef.target, ")"), isCondtl && React.createElement("span", {
       style: {
         fontStyle: 'italic',
         fontWeight: 400,
-        opacity: .85
+        opacity: 1
       }
     }, "if ", ef.circumstance));
   })))), spell.description && React.createElement("div", {
@@ -48027,13 +48037,13 @@ function SpellInfoModal({
       marginTop: 8,
       fontStyle: 'italic',
       fontSize: 'var(--fs-sm)',
-      opacity: .75
+      opacity: 1
     }
   }, spell.personalNotes), spell.sourceRef && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 'var(--fs-xs)',
-      opacity: .45,
+      opacity: 1,
       fontStyle: 'italic'
     }
   }, spell.sourceRef)), React.createElement("div", {
@@ -50764,7 +50774,7 @@ function FeaturesTab({
   }, tp.name || 'Tool', " ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     }
   }, "⋯"), React.createElement("button", {
     className: "prof-chip-x",
@@ -51119,7 +51129,7 @@ function FeatureForm({
   }, "Stat Modifiers ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     }
   }, "(always on)")), React.createElement(StatModEditor, {
     mods: f.statMods,
@@ -51136,7 +51146,7 @@ function FeatureForm({
   }, "Conditional Modifiers ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     }
   }, "(situational — dashed chips with the condition on hover)")), React.createElement(ConditionalModEditor, {
     mods: f.conditionalMods,
@@ -51153,7 +51163,7 @@ function FeatureForm({
   }, "Defenses ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     }
   }, "(resistances, immunities, save advantages)")), React.createElement(DefenseEditor, {
     defenses: f.defenses,
@@ -51170,7 +51180,7 @@ function FeatureForm({
   }, "Granted Spells ", React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      opacity: .7
+      opacity: 1
     }
   }, "(shown in Combat & Magic)")), React.createElement(GrantedSpellEditor, {
     entries: f.spellsGranted,
@@ -52054,7 +52064,7 @@ function CharModal({
     className: "form-field"
   }, React.createElement("label", {
     className: "form-lbl"
-  }, "Owner email ", React.createElement("span", { style: { opacity: 0.55, fontWeight: 'normal' } }, "(maintainer only — who may edit this character's layout)")), React.createElement("input", {
+  }, "Owner email ", React.createElement("span", { style: { opacity: 1, fontWeight: 'normal' } }, "(maintainer only — who may edit this character's layout)")), React.createElement("input", {
     className: "form-inp",
     placeholder: "owner@email.com",
     value: f.ownerEmail || '',
@@ -52900,7 +52910,7 @@ function App() {
     onImport: handleImport
   }), myEmail ? React.createElement('span', {
     title: 'Signed in via the campaign gate',
-    style: { fontSize: 'var(--fs-xs)', opacity: 0.6, marginRight: '8px', fontFamily: 'var(--body)', whiteSpace: 'nowrap' }
+    style: { fontSize: 'var(--fs-xs)', opacity: 1, marginRight: '8px', fontFamily: 'var(--body)', whiteSpace: 'nowrap' }
   }, '\u2737 ' + myEmail) : null, React.createElement(DarkToggle, {
     dark: dark,
     onToggle: () => setDark(d => !d)
@@ -52941,4 +52951,5 @@ function App() {
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 </script>
 </body>
+</html>canEdit && ody>
 </html>canEdit && 
