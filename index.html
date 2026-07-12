@@ -40754,6 +40754,8 @@ function MagicCombatModule({
         title: ok ? 'Cast this spell' : 'Not enough charges',
         style: {
           fontFamily: 'var(--heading)',
+          width: 96,
+          flexShrink: 0,
           fontSize: 'var(--fs-xs)',
           letterSpacing: 'var(--ls-tight)',
           padding: '3px 6px',
@@ -40768,27 +40770,27 @@ function MagicCombatModule({
       }, React.createElement("option", {
         value: "",
         style: {
-          background: '#1a1a24',
-          color: '#fff'
+          background: 'var(--surface)',
+          color: 'var(--text)'
         }
-      }, "Cast ▾"), React.createElement("option", {
+      }, "Cast…"), React.createElement("option", {
         value: "self",
         style: {
-          background: '#1a1a24',
-          color: '#fff'
+          background: 'var(--surface)',
+          color: 'var(--text)'
         }
       }, "On myself"), g.spell.rangeType !== 'Self' && otherChars.map(oc => React.createElement("option", {
         key: oc.id,
         value: 'ally:' + oc.id,
         style: {
-          background: '#1a1a24',
-          color: '#fff'
+          background: 'var(--surface)',
+          color: 'var(--text)'
         }
       }, "On ", oc.commonName || oc.name || 'ally')), g.spell.rangeType !== 'Self' && React.createElement("option", {
         value: "other",
         style: {
-          background: '#1a1a24',
-          color: '#fff'
+          background: 'var(--surface)',
+          color: 'var(--text)'
         }
       }, "On someone else (NPC)"))));
     })));
