@@ -1280,7 +1280,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .cond-passive{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
     .cond-passive-lbl{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-subtle-on-dark);}
     .cond-passive-item{font-size:var(--fs-xs);color:var(--text-muted-on-dark);}
-    .combat-stat-lbl{color:var(--text-muted);font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;flex-shrink:0;}
+    .combat-stat-lbl{color:var(--text-muted);font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;flex-shrink:0;margin-right:7px;}
     /* edit panel */
     .magic-edit-panel{background:rgba(0,0,0,.8);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.1);padding:14px;position:relative;z-index:7;}
     .magic-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -40531,7 +40531,7 @@ function MagicCombatModule({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       fontFamily: 'var(--heading)',
       textTransform: 'uppercase',
       letterSpacing: 'var(--ls-wide)',
@@ -40607,7 +40607,7 @@ function MagicCombatModule({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       fontFamily: 'var(--heading)',
       textTransform: 'uppercase',
       letterSpacing: 'var(--ls-wide)',
@@ -40672,7 +40672,7 @@ function MagicCombatModule({
     }))), React.createElement("span", {
       style: {
         fontSize: 'var(--fs-xs)',
-        color: 'var(--text-subtle-on-dark)',
+        color: 'var(--text-muted)',
         fontFamily: 'var(--heading)',
         flexShrink: 0
       }
@@ -40722,7 +40722,7 @@ function MagicCombatModule({
       }, g.spell.name || '(unnamed spell)'), React.createElement("div", {
         style: {
           fontSize: 'var(--fs-xs)',
-          color: 'var(--text-subtle-on-dark)'
+          color: 'var(--text-muted)'
         }
       }, atWill ? 'at will' : `${cost} charge${cost !== 1 ? 's' : ''}`, g.entry.castLevel > 0 ? ` · cast at level ${g.entry.castLevel}` : '')), (g.spell.name || '').trim().toLowerCase() === 'sending' ? (canEdit && React.createElement("button", {
         disabled: !ok,
@@ -40744,6 +40744,11 @@ function MagicCombatModule({
           outline: 'none'
         }
       }, "🦅 Send")) : (canEdit && React.createElement("select", {
+        className: "form-sel",
+        style: {
+          padding: '2px 6px',
+          fontSize: 'var(--fs-xs)'
+        },
         disabled: !ok,
         value: "",
         onChange: e => {
@@ -40810,7 +40815,7 @@ function MagicCombatModule({
       background: 'rgba(255,255,255,.08)',
       border: '1px solid rgba(255,255,255,.18)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '6px 8px',
       resize: 'vertical',
@@ -46433,7 +46438,7 @@ function ActiveEffectsPanel({
       fontSize: 'var(--fs-xs)',
       letterSpacing: 'var(--ls-x-wide)',
       textTransform: 'uppercase',
-      color: 'var(--text-muted-on-dark)'
+      color: 'var(--text-muted)'
     }
   }, "Active Effects"), (canEdit && React.createElement("button", {
     className: "magic-header-btn",
@@ -46464,7 +46469,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Spell / Ability"), React.createElement("input", {
@@ -46473,7 +46478,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 7px',
       outline: 'none',
@@ -46497,7 +46502,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Cast by"), React.createElement("select", {
@@ -46506,7 +46511,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 5px',
       outline: 'none'
@@ -46526,7 +46531,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Ally name"), React.createElement("input", {
@@ -46535,7 +46540,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 7px',
       outline: 'none',
@@ -46561,7 +46566,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Applies condition (optional)"), React.createElement("select", {
@@ -46570,7 +46575,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 5px',
       outline: 'none'
@@ -46597,7 +46602,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 3
     }
   }, "Affects (select any)"), React.createElement("div", {
@@ -46610,7 +46615,7 @@ function ActiveEffectsPanel({
     className: "tgt-pill",
     style: {
       borderColor: mSelf ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
-      color: mSelf ? 'var(--text-on-dark)' : 'var(--text-subtle-on-dark)'
+      color: mSelf ? 'var(--text)' : 'var(--text-muted)'
     }
   }, React.createElement("input", {
     type: "checkbox",
@@ -46626,7 +46631,7 @@ function ActiveEffectsPanel({
       className: "tgt-pill",
       style: {
         borderColor: on ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
-        color: on ? 'var(--text-on-dark)' : 'var(--text-subtle-on-dark)'
+        color: on ? 'var(--text)' : 'var(--text-muted)'
       }
     }, React.createElement("input", {
       type: "checkbox",
@@ -46640,7 +46645,7 @@ function ActiveEffectsPanel({
     className: "tgt-pill",
     style: {
       borderColor: mNpcOn ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
-      color: mNpcOn ? 'var(--text-on-dark)' : 'var(--text-subtle-on-dark)'
+      color: mNpcOn ? 'var(--text)' : 'var(--text-muted)'
     }
   }, React.createElement("input", {
     type: "checkbox",
@@ -46656,7 +46661,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '3px 7px',
       outline: 'none',
@@ -46678,7 +46683,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46693,7 +46698,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46708,7 +46713,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46723,7 +46728,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46738,7 +46743,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46753,7 +46758,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46768,7 +46773,7 @@ function ActiveEffectsPanel({
       alignItems: 'center',
       gap: 4,
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer'
     }
   }, React.createElement("input", {
@@ -46786,7 +46791,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Base AC formula (replaces unarmored)"), React.createElement("select", {
@@ -46795,7 +46800,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -46810,7 +46815,7 @@ function ActiveEffectsPanel({
   }, f.label)))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Flat AC bonus (+/-)"), React.createElement("input", {
@@ -46820,7 +46825,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 7px',
       outline: 'none',
@@ -46833,7 +46838,7 @@ function ActiveEffectsPanel({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Attack rolls"), React.createElement("select", {
@@ -46842,7 +46847,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -46857,7 +46862,7 @@ function ActiveEffectsPanel({
   }, o.label)))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Saving throws"), React.createElement("select", {
@@ -46866,7 +46871,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -46881,7 +46886,7 @@ function ActiveEffectsPanel({
   }, o.label)))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Ability checks"), React.createElement("select", {
@@ -46890,7 +46895,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -46905,7 +46910,7 @@ function ActiveEffectsPanel({
   }, o.label)))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Speed modifier (ft)"), React.createElement("input", {
@@ -46915,7 +46920,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 7px',
       outline: 'none',
@@ -46928,7 +46933,7 @@ function ActiveEffectsPanel({
   }))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Notes"), React.createElement("input", {
@@ -46937,7 +46942,7 @@ function ActiveEffectsPanel({
       background: 'rgba(255,255,255,.1)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
       padding: '4px 7px',
       outline: 'none',
@@ -46957,7 +46962,7 @@ function ActiveEffectsPanel({
   }, React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Persists until"), React.createElement("select", {
@@ -46966,7 +46971,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -46984,7 +46989,7 @@ function ActiveEffectsPanel({
   }, "A long rest"))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 2
     }
   }, "Effect type"), React.createElement("select", {
@@ -46993,7 +46998,7 @@ function ActiveEffectsPanel({
       background: 'rgba(0,0,0,.3)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 4,
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
       padding: '4px 5px',
       outline: 'none'
@@ -47011,7 +47016,7 @@ function ActiveEffectsPanel({
   }, "Neutral")))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       marginBottom: 4
     }
   }, "Stat modifiers"), React.createElement(StatModEditor, {
@@ -47083,7 +47088,7 @@ function ActiveEffectsPanel({
       }, React.createElement("span", {
         style: {
           fontSize: 'var(--fs-xs)',
-          color: 'var(--text-muted-on-dark)',
+          color: 'var(--text-muted)',
           fontFamily: 'var(--heading)',
           textTransform: 'uppercase',
           letterSpacing: 'var(--ls-wide)',
@@ -47095,7 +47100,7 @@ function ActiveEffectsPanel({
           minWidth: 0,
           fontSize: 'var(--fs-sm)',
           fontFamily: 'var(--body)',
-          color: 'var(--text-on-dark)',
+          color: 'var(--text)',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
@@ -47125,7 +47130,7 @@ function ActiveEffectsPanel({
       }, names.length > 0 && React.createElement("span", {
         style: {
           fontSize: 'var(--fs-xs)',
-          color: 'var(--text-subtle-on-dark)'
+          color: 'var(--text-muted)'
         }
       }, "→ ", names.join(', ')), allTags.map((ct, i) => {
         const cs = chipSty(ct.color || conditionColor(ct.label) || '#8E44AD');
@@ -47147,7 +47152,7 @@ function ActiveEffectsPanel({
   })(), effects.filter(e => !(e.isConcentration && isEmptyTracker(e)) && !isConcSourceOnly(e)).length === 0 && !adding && React.createElement("p", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       fontStyle: 'italic'
     }
   }, "No active effects."), effects.filter(e => !(e.isConcentration && isEmptyTracker(e)) && !isConcSourceOnly(e)).map(e => React.createElement("div", {
@@ -47174,7 +47179,7 @@ function ActiveEffectsPanel({
   }, React.createElement("span", {
     style: {
       fontSize: 'var(--fs-sm)',
-      color: 'var(--text-on-dark)',
+      color: 'var(--text)',
       fontFamily: 'var(--body)'
     }
   }, e.name), e.isConcentration && React.createElement("span", {
@@ -47188,7 +47193,7 @@ function ActiveEffectsPanel({
   }, "Conc."), e.castBy === 'ally' && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)'
+      color: 'var(--text-muted)'
     }
   }, e.allyName ? `← ${e.allyName}` : '← ally')), React.createElement("div", {
     style: {
@@ -47232,7 +47237,7 @@ function ActiveEffectsPanel({
   }, "AC ", e.acBonus > 0 ? '+' : '', e.acBonus), advBadge(e.attackAdv, 'Atk'), advBadge(e.saveAdv, 'Save'), advBadge(e.checkAdv, 'Check'), e.speedMod !== 0 && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       border: '1px solid rgba(255,255,255,.2)',
       borderRadius: 10,
       padding: '1px 6px'
@@ -47241,7 +47246,7 @@ function ActiveEffectsPanel({
     title: "An ‘up to’ duration — the caster may voluntarily end this effect early at any time. Use the ✕ to drop it.",
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-muted-on-dark)',
+      color: 'var(--text-muted)',
       border: '1px dashed rgba(255,255,255,.25)',
       borderRadius: 10,
       padding: '1px 6px'
@@ -47309,7 +47314,7 @@ function ActiveEffectsPanel({
   }), e.notes && React.createElement("span", {
     style: {
       fontSize: 'var(--fs-xs)',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       fontStyle: 'italic'
     }
   }, e.notes))), (e.condTags || []).some(ct => ct.dispelOnAction) && (canEdit && React.createElement("button", {
@@ -47317,7 +47322,7 @@ function ActiveEffectsPanel({
       background: 'none',
       border: '1px solid var(--text-subtle-on-dark)',
       borderRadius: 3,
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer',
       fontSize: 'var(--fs-xs)',
       padding: '1px 4px',
@@ -47330,7 +47335,7 @@ function ActiveEffectsPanel({
     style: {
       background: 'none',
       border: 'none',
-      color: 'var(--text-subtle-on-dark)',
+      color: 'var(--text-muted)',
       cursor: 'pointer',
       fontSize: 'var(--fs-sm)',
       padding: '2px 4px',
