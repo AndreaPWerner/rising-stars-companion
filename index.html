@@ -1186,6 +1186,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .prof-read-line{display:flex;gap:10px;align-items:baseline;}
     .prof-read-lbl{font-family:var(--heading);font-size:var(--fs-xs);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--text-muted);min-width:92px;flex-shrink:0;}
     .prof-read-names{font-size:var(--fs-sm);line-height:1.5;}
+    div.combat-block-title{border-bottom:1px solid var(--border);padding-bottom:3px;}
+    .combat-block-hd{border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:5px;}
     .spark-p{position:fixed;pointer-events:none;z-index:12000;color:var(--accent);font-size:10px;line-height:1;opacity:.5;transform:translate(-50%,-50%) rotate(var(--rot,0deg));animation:sparkFade .85s ease-out forwards;text-shadow:0 0 6px rgba(255,220,140,.75);}
     .spark-strong{font-size:15px;opacity:.95;text-shadow:0 0 10px rgba(255,220,140,.95);}
     @keyframes sparkFade{0%{opacity:.65;}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.25);}}
@@ -40497,7 +40499,7 @@ function MagicCombatModule({
     className: "combat-stat-lbl"
   }, p.name, p.pact ? ' · Pact' : '', " ", React.createElement("span", {
     style: {
-      opacity: .55,
+      opacity: .8,
       fontSize: 'var(--fs-xs)'
     }
   }, "(", p.ability, ")")), React.createElement("span", null, fmtMod(p.attack), " to hit", p.showDC ? ` · save DC ${p.dc}` : ''))), rogLevel > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
@@ -40631,8 +40633,8 @@ function MagicCombatModule({
     return React.createElement("div", {
       key: si,
       style: {
-        background: 'rgba(255,255,255,.05)',
-        border: '1px solid rgba(255,255,255,.12)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
         borderRadius: 6,
         padding: '6px 8px'
       }
@@ -40701,7 +40703,7 @@ function MagicCombatModule({
           width: 17,
           height: 17,
           borderRadius: '50%',
-          border: '1px solid rgba(255,255,255,.35)',
+          border: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -40810,8 +40812,8 @@ function MagicCombatModule({
   }, "Notes")), (canEdit ? React.createElement("textarea", {
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.08)',
-      border: '1px solid rgba(255,255,255,.18)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46420,7 +46422,7 @@ function ActiveEffectsPanel({
   return React.createElement("div", {
     style: {
       marginTop: 12,
-      borderTop: '1px solid rgba(255,255,255,.12)',
+      borderTop: '1px solid var(--border)',
       paddingTop: 10
     }
   }, React.createElement("div", {
@@ -46447,7 +46449,7 @@ function ActiveEffectsPanel({
     onClick: () => setAdding(a => !a)
   }, adding ? '✕ Cancel' : '+ Add'))), adding && React.createElement("div", {
     style: {
-      background: 'rgba(255,255,255,.07)',
+      background: 'var(--surface)',
       borderRadius: 6,
       padding: '10px 12px',
       marginBottom: 8,
@@ -46473,8 +46475,8 @@ function ActiveEffectsPanel({
   }, "Spell / Ability"), React.createElement("input", {
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46507,7 +46509,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46535,8 +46537,8 @@ function ActiveEffectsPanel({
   }, "Ally name"), React.createElement("input", {
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46571,7 +46573,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46612,7 +46614,7 @@ function ActiveEffectsPanel({
   }, React.createElement("label", {
     className: "tgt-pill",
     style: {
-      borderColor: mSelf ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
+      borderColor: mSelf ? 'var(--accent2)' : 'var(--border)',
       color: mSelf ? 'var(--text)' : 'var(--text-muted)'
     }
   }, React.createElement("input", {
@@ -46628,7 +46630,7 @@ function ActiveEffectsPanel({
       key: o.id,
       className: "tgt-pill",
       style: {
-        borderColor: on ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
+        borderColor: on ? 'var(--accent2)' : 'var(--border)',
         color: on ? 'var(--text)' : 'var(--text-muted)'
       }
     }, React.createElement("input", {
@@ -46642,7 +46644,7 @@ function ActiveEffectsPanel({
   }), React.createElement("label", {
     className: "tgt-pill",
     style: {
-      borderColor: mNpcOn ? 'var(--accent2)' : 'rgba(255,255,255,.2)',
+      borderColor: mNpcOn ? 'var(--accent2)' : 'var(--border)',
       color: mNpcOn ? 'var(--text)' : 'var(--text-muted)'
     }
   }, React.createElement("input", {
@@ -46656,8 +46658,8 @@ function ActiveEffectsPanel({
     style: {
       flex: '1 1 120px',
       minWidth: 100,
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46796,7 +46798,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -46820,8 +46822,8 @@ function ActiveEffectsPanel({
     type: "number",
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46843,7 +46845,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -46867,7 +46869,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -46891,7 +46893,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -46915,8 +46917,8 @@ function ActiveEffectsPanel({
     type: "number",
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46937,8 +46939,8 @@ function ActiveEffectsPanel({
   }, "Notes"), React.createElement("input", {
     style: {
       width: '100%',
-      background: 'rgba(255,255,255,.1)',
-      border: '1px solid rgba(255,255,255,.2)',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-sm)',
@@ -46967,7 +46969,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -46994,7 +46996,7 @@ function ActiveEffectsPanel({
     style: {
       width: '100%',
       background: 'rgba(0,0,0,.3)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 4,
       color: 'var(--text)',
       fontSize: 'var(--fs-xs)',
@@ -47059,7 +47061,7 @@ function ActiveEffectsPanel({
       style: {
         marginBottom: 8,
         paddingBottom: 6,
-        borderBottom: '1px solid rgba(255,255,255,.12)'
+        borderBottom: '1px solid var(--border)'
       }
     }, conc.map(src => {
       const rows = targetInfo(src);
@@ -47160,7 +47162,7 @@ function ActiveEffectsPanel({
       gap: 6,
       alignItems: 'flex-start',
       padding: '5px 0 5px 7px',
-      borderBottom: '1px solid rgba(255,255,255,.08)',
+      borderBottom: '1px solid var(--border)',
       borderLeft: e.nature === 'debuff' ? '3px solid rgba(231,76,60,.75)' : e.nature === 'buff' ? '3px solid rgba(39,174,96,.6)' : '3px solid transparent'
     }
   }, React.createElement("div", {
@@ -47236,7 +47238,7 @@ function ActiveEffectsPanel({
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
-      border: '1px solid rgba(255,255,255,.2)',
+      border: '1px solid var(--border)',
       borderRadius: 10,
       padding: '1px 6px'
     }
@@ -47245,7 +47247,7 @@ function ActiveEffectsPanel({
     style: {
       fontSize: 'var(--fs-xs)',
       color: 'var(--text-muted)',
-      border: '1px dashed rgba(255,255,255,.25)',
+      border: '1px dashed var(--border)',
       borderRadius: 10,
       padding: '1px 6px'
     }
@@ -47669,7 +47671,7 @@ function SpellInfoModal({
   const pLbl = {
     color: 'var(--text-muted)',
     marginRight: 5,
-    fontSize: '10px',
+    fontSize: 'var(--fs-xs)',
     textTransform: 'uppercase',
     letterSpacing: '.04em'
   };
@@ -47854,7 +47856,7 @@ function SpellInfoModal({
     }, c.type))));
   }), scales && React.createElement("div", null, React.createElement("div", {
     style: {
-      fontSize: '10px',
+      fontSize: 'var(--fs-xs)',
       textTransform: 'uppercase',
       letterSpacing: '.04em',
       color: 'var(--text-muted)',
@@ -52898,7 +52900,7 @@ function App() {
     onImport: handleImport
   }), myEmail ? React.createElement('span', {
     title: 'Signed in via the campaign gate',
-    style: { fontSize: '11px', opacity: 0.6, marginRight: '8px', fontFamily: 'var(--body)', whiteSpace: 'nowrap' }
+    style: { fontSize: 'var(--fs-xs)', opacity: 0.6, marginRight: '8px', fontFamily: 'var(--body)', whiteSpace: 'nowrap' }
   }, '\u2737 ' + myEmail) : null, React.createElement(DarkToggle, {
     dark: dark,
     onToggle: () => setDark(d => !d)
